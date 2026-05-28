@@ -1,4 +1,4 @@
-repeat task.wait() until game:IsLoaded()
+﻿repeat task.wait() until game:IsLoaded()
 repeat task.wait() until shared.GuiLibrary
 repeat task.wait() until shared.GUI
 repeat task.wait() until shared.run
@@ -9,7 +9,7 @@ local store = shared.GlobalStore
 local bedwars = shared.GlobalBedwars
 local entityLibrary = shared.vapeentity
 local RunLoops = shared.RunLoops
-local VoidwareStore = {
+local AtomWareStore = {
 	bedtable = {},
 	Tweening = false
 }
@@ -28,7 +28,7 @@ task.spawn(function()
         end
         end)
     end
-    VoidwareStore.Tweening = tweening
+    AtomWareStore.Tweening = tweening
     tweening = false
     task.wait()
   until not vapeInjected
@@ -37,7 +37,7 @@ end)
 local vapeAssert = function(argument, title, text, duration, hault, moduledisable, module) 
 	if not argument then
     local suc, res = pcall(function()
-    local notification = GuiLibrary.CreateNotification(title or "Voidware", text or "Failed to call function.", duration or 20, "assets/WarningNotification.png")
+    local notification = GuiLibrary.CreateNotification(title or "AtomWare", text or "Failed to call function.", duration or 20, "assets/WarningNotification.png")
     notification.IconLabel.ImageColor3 = Color3.new(220, 0, 0)
     notification.Frame.Frame.ImageColor3 = Color3.new(220, 0, 0)
     if moduledisable and (module and GuiLibrary.ObjectsThatCanBeSaved[module.."OptionsButton"].Api.Enabled) then GuiLibrary.ObjectsThatCanBeSaved[module.."OptionsButton"].Api.ToggleButton(false) end
@@ -189,7 +189,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
 		end
 		for i,v in pairs(collectionService:GetTagged("Drone")) do
 			local plr = playersService:GetPlayerByUserId(v:GetAttribute("PlayerUserId"))
-			if plr and plr ~= lplr and plr.Team and lplr.Team and plr.Team ~= lplr.Team and ({VoidwareFunctions:GetPlayerType(plr)})[2] and abletocalculate() and v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health then
+			if plr and plr ~= lplr and plr.Team and lplr.Team and plr.Team ~= lplr.Team and ({AtomWareFunctions:GetPlayerType(plr)})[2] and abletocalculate() and v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health then
 				if sortmethods[sortmethod](v.PrimaryPart, v.Humanoid.Health) and raycasted(v.PrimaryPart) then
 					sort = healthmethod and v.Humanoid.Health or GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, v.PrimaryPart)
 					entity.Player = {Character = v, Name = "Drone", DisplayName = "Drone", UserId = 1}
@@ -253,7 +253,7 @@ run(function()
 						table.insert(Autowin.Connections, runService.Heartbeat:Connect(function()
 							pcall(function()
 							if not isnetworkowner(lplr.Character.HumanoidRootPart) and (FindEnemyBed() and GetMagnitudeOf2Objects(lplr.Character.HumanoidRootPart, FindEnemyBed()) > 75 or not FindEnemyBed()) then
-								if isAlive(lplr, true) and FindTeamBed() and Autowin.Enabled and not VoidwareStore.GameFinished then
+								if isAlive(lplr, true) and FindTeamBed() and Autowin.Enabled and not AtomWareStore.GameFinished then
 									lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
 									lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
 								end
@@ -277,7 +277,7 @@ run(function()
 							end
 							end)
 							if AutowinNotification.Enabled then
-								local bedname = VoidwareStore.bedtable[bed] or "unknown"
+								local bedname = AtomWareStore.bedtable[bed] or "unknown"
 								task.spawn(InfoNotification, "Autowin", "Destroying "..bedname:lower().." team's bed", 5)
 							end
 							if not isEnabled("Nuker") then
@@ -286,7 +286,7 @@ run(function()
 							repeat task.wait() until FindEnemyBed() ~= bed or not isAlive()
 							if FindTarget(45, store.blockRaycast).RootPart and isAlive() then
 								if AutowinNotification.Enabled then
-									local team = VoidwareStore.bedtable[bed] or "unknown"
+									local team = AtomWareStore.bedtable[bed] or "unknown"
 									task.spawn(InfoNotification, "Autowin", "Killing "..team:lower().." team's teamates", 5)
 								end
 								repeat
@@ -325,14 +325,14 @@ run(function()
 									lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
 								end
 							else
-							if VoidwareStore.GameFinished then return end
+							if AtomWareStore.GameFinished then return end
 							lplr.Character.Humanoid:TakeDamage(lplr.Character.Humanoid.Health)
 							lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
 							end
 						end))
 						table.insert(Autowin.Connections, lplr.CharacterAdded:Connect(function()
 							if not isAlive(lplr, true) then repeat task.wait() until isAlive(lplr, true) end
-							if not VoidwareStore.GameFinished then return end
+							if not AtomWareStore.GameFinished then return end
 							local oldpos = lplr.Character.HumanoidRootPart.CFrame
 							repeat 
 							lplr.Character.HumanoidRootPart.CFrame = oldpos

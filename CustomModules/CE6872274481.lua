@@ -1,4 +1,4 @@
-repeat task.wait() until game:IsLoaded()
+﻿repeat task.wait() until game:IsLoaded()
 local GuiLibrary = shared.GuiLibrary
 local playersService = game:GetService("Players")
 local textService = game:GetService("TextService")
@@ -20,17 +20,17 @@ local vapeCachedAssets = {}
 local function encode(tbl)
     return game:GetService("HttpService"):JSONEncode(tbl)
 end
-VoidwareFunctions.GlobaliseObject("encode", encode)
+AtomWareFunctions.GlobaliseObject("encode", encode)
 local function decode(tbl)
     return game:GetService("HttpService"):JSONDecode(tbl)
 end
-VoidwareFunctions.GlobaliseObject("decode", decode)
+AtomWareFunctions.GlobaliseObject("decode", decode)
 local function cprint(tbl)
 	for i, v in pairs(tbl) do
 		print(tostring(tbl), tostring(i), tostring(v))
 	end
 end
-VoidwareFunctions.GlobaliseObject("cprint", cprint)
+AtomWareFunctions.GlobaliseObject("cprint", cprint)
 local vapeEvents = setmetatable({}, {
 	__index = function(self, index)
 		self[index] = Instance.new("BindableEvent")
@@ -399,8 +399,8 @@ function bedwars.ClientStoreHandler:dispatch(tbl)
     --- pov u can't reverse engineer this function :skull:
 end
 bedwars.ItemHandler = {}
-bedwars.ItemHandler.ItemMeta = decode(VoidwareFunctions.fetchCheatEngineSupportFile("ItemMeta.json"))
-pcall(function() bedwars.QueueMeta = decode(VoidwareFunctions.fetchCheatEngineSupportFile("QueueMeta.json")) end)
+bedwars.ItemHandler.ItemMeta = decode(AtomWareFunctions.fetchCheatEngineSupportFile("ItemMeta.json"))
+pcall(function() bedwars.QueueMeta = decode(AtomWareFunctions.fetchCheatEngineSupportFile("QueueMeta.json")) end)
 --decode(readfile("vape/CheatEngine/ItemMeta.json"))
 bedwars.ItemHandler.getItemMeta = function(item)
     for i,v in pairs(bedwars.ItemHandler.ItemMeta) do
@@ -410,11 +410,11 @@ bedwars.ItemHandler.getItemMeta = function(item)
 end
 bedwars.ItemTable = bedwars.ItemHandler.ItemMeta.items
 bedwars.ItemMeta = bedwars.ItemTable
-bedwars.KitMeta = decode(VoidwareFunctions.fetchCheatEngineSupportFile("KitMeta.json"))
+bedwars.KitMeta = decode(AtomWareFunctions.fetchCheatEngineSupportFile("KitMeta.json"))
 --decode(readfile("vape/CheatEngine/KitMeta.json"))
-bedwars.ProdAnimationsMeta = decode(VoidwareFunctions.fetchCheatEngineSupportFile("ProdAnimationsMeta.json"))
+bedwars.ProdAnimationsMeta = decode(AtomWareFunctions.fetchCheatEngineSupportFile("ProdAnimationsMeta.json"))
 --decode(readfile('vape/CheatEngine/ProdAnimationsMeta.json'))
-bedwars.AnimationTypeMeta = decode(VoidwareFunctions.fetchCheatEngineSupportFile("AnimationTypeMeta.json"))
+bedwars.AnimationTypeMeta = decode(AtomWareFunctions.fetchCheatEngineSupportFile("AnimationTypeMeta.json"))
 bedwars.AnimationType = bedwars.AnimationTypeMeta
 --decode(readfile('vape/CheatEngine/AnimationTypeMeta.json'))
 bedwars.AnimationController = {
@@ -602,7 +602,7 @@ local function getPlacedBlock(pos, strict)
     end
     return nil
 end
-VoidwareFunctions.GlobaliseObject("getPlacedBlock", getPlacedBlock)
+AtomWareFunctions.GlobaliseObject("getPlacedBlock", getPlacedBlock)
 function bedwars.BlockController:getStore()
 	local tbl = {}
 	function tbl:getBlockData(pos)
@@ -909,7 +909,7 @@ local function getItem(itemName, inv)
 	end
 	return nil
 end
-VoidwareFunctions.GlobaliseObject("getItem", getItem)
+AtomWareFunctions.GlobaliseObject("getItem", getItem)
 
 local function switchItem(tool, delayTime)
 	if tool ~= nil and type(tool) == "string" then
@@ -921,7 +921,7 @@ local function switchItem(tool, delayTime)
 		corehotbarswitch()
 	end
 end
-VoidwareFunctions.GlobaliseObject("switchItem", switchItem)
+AtomWareFunctions.GlobaliseObject("switchItem", switchItem)
 local function switchToAndUseTool(block, legit)
 	local tool = getBestTool(block.Name)
 	if tool and (entityLibrary.isAlive and lplr.Character:FindFirstChild("HandInvItem") and lplr.Character.HandInvItem.Value ~= tool.tool) then
@@ -1303,13 +1303,13 @@ bedwars.AppController = {}
 function bedwars.AppController:isAppOpen(appName)
 	return game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild(appName)
 end
-bedwars.KillEffectMeta = decode(VoidwareFunctions.fetchCheatEngineSupportFile("KillEffectMeta.json"))
+bedwars.KillEffectMeta = decode(AtomWareFunctions.fetchCheatEngineSupportFile("KillEffectMeta.json"))
 --decode(readfile('vape/CheatEngine/KillEffectMeta.json'))
 bedwars.BalloonController = {}
 function bedwars.BalloonController:inflateBalloon()
 	bedwars.Client:Get("InflateBalloon"):FireServer()
 end
-bedwars.SoundList = decode(VoidwareFunctions.fetchCheatEngineSupportFile("SoundListMeta.json"))
+bedwars.SoundList = decode(AtomWareFunctions.fetchCheatEngineSupportFile("SoundListMeta.json"))
 --decode(readfile('vape/CheatEngine/SoundListMeta.json'))
 bedwars.SoundManager = {}
 function bedwars.SoundManager:playSound(soundId)
@@ -1451,7 +1451,7 @@ function bedwars.AbilityController:useAbility(ability, ...)
 	local args = {...}
 	bedwars.Client:Get("useAbility"):FireServer(ability, unpack(args))
 end
-bedwars.ShopItemsMeta = decode(VoidwareFunctions.fetchCheatEngineSupportFile("ShopItemsMeta.json"))
+bedwars.ShopItemsMeta = decode(AtomWareFunctions.fetchCheatEngineSupportFile("ShopItemsMeta.json"))
 --decode(readfile('vape/CheatEngine/ShopItemsMeta.json'))
 bedwars.ShopItems = bedwars.ShopItemsMeta.ShopItems
 local bowConstants = {}
@@ -1482,7 +1482,7 @@ local function getBowConstants()
 end
 bowConstants = getBowConstants()
 bedwars.BowConstantsTable = bowConstants
-bedwars.ProjectileMeta = decode(VoidwareFunctions.fetchCheatEngineSupportFile("ProjectileMeta.json"))
+bedwars.ProjectileMeta = decode(AtomWareFunctions.fetchCheatEngineSupportFile("ProjectileMeta.json"))
 --decode(readfile('vape/CheatEngine/ProjectileMeta.json'))
 bedwars.ProjectileUtil = {}
 function bedwars.ProjectileUtil:createProjectile(p15, p16, p17, p18)
@@ -1558,9 +1558,9 @@ function bedwars.ProjectileController:createLocalProjectile(p29, p30, p31, p32, 
 	return v41;
 end
 bedwars.MageKitUtil = {}
-bedwars.MageKitUtil.MageElementVisualizations = decode(VoidwareFunctions.fetchCheatEngineSupportFile("MageKitUtileMeta.json")).MageElementMeta
+bedwars.MageKitUtil.MageElementVisualizations = decode(AtomWareFunctions.fetchCheatEngineSupportFile("MageKitUtileMeta.json")).MageElementMeta
 --decode(readfile('vape/CheatEngine/MageKitUtileMeta.json')).MageElementMeta
-bedwars.BalanceFile = decode(VoidwareFunctions.fetchCheatEngineSupportFile("BalanceFireMeta.json"))
+bedwars.BalanceFile = decode(AtomWareFunctions.fetchCheatEngineSupportFile("BalanceFireMeta.json"))
 --decode(readfile('vape/CheatEngine/BalanceFireMeta.json'))
 bedwars.MageController = {}
 bedwars.FishermanController = {}
@@ -1809,7 +1809,7 @@ function bedwars.StoreController:updateLocalHand()
 	store.localHand.toolType = store.localHand.Type
 	store.hand = store.localHand
 end
-VoidwareFunctions.GlobaliseObject("StoreTable", {})
+AtomWareFunctions.GlobaliseObject("StoreTable", {})
 function bedwars.StoreController:executeStoreTable()
 	for i,v in pairs(shared.StoreTable) do
 		if type(v) == "function" then task.spawn(function() pcall(function() v() end) end) end
@@ -1873,9 +1873,9 @@ for i, v in pairs({"PlaceBlockEvent", "BreakBlockEvent"}) do
 		end))
 	end)
 end
-VoidwareFunctions.GlobaliseObject("vapeEvents", vapeEvents)
+AtomWareFunctions.GlobaliseObject("vapeEvents", vapeEvents)
 table.insert(shared.StoreTable, function()
-	VoidwareFunctions.GlobaliseObject("vapeEvents", vapeEvents)
+	AtomWareFunctions.GlobaliseObject("vapeEvents", vapeEvents)
 end)
 
 store.blockRaycast.FilterType = Enum.RaycastFilterType.Include
@@ -1917,7 +1917,7 @@ local isnetworkowner = function(part)
 	end
 	return networkownerswitch <= tick()
 end
-VoidwareFunctions.GlobaliseObject("isnetworkowner", isnetworkowner)
+AtomWareFunctions.GlobaliseObject("isnetworkowner", isnetworkowner)
 local getcustomasset = getsynasset or getcustomasset or function(location) return "rbxasset://"..location end
 local queueonteleport = syn and syn.queue_on_teleport or queue_on_teleport or function() end
 local synapsev3 = syn and syn.toast_notification and "V3" or ""
@@ -1938,7 +1938,7 @@ end
 
 local function vapeGithubRequest(scripturl)
 	if not isfile("vape/"..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
 		assert(suc, res)
 		assert(res ~= "404: Not Found", res)
 		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
@@ -2011,7 +2011,7 @@ local function isTarget(plr)
 end
 
 local function isVulnerable(plr) return plr.Humanoid.Health > 0 and not plr.Character.FindFirstChildWhichIsA(plr.Character, "ForceField") end
-VoidwareFunctions.GlobaliseObject("isVulnarable", isVulnarable)
+AtomWareFunctions.GlobaliseObject("isVulnarable", isVulnarable)
 
 local function getPlayerColor(plr)
 	if isFriend(plr, true) then
@@ -2097,7 +2097,7 @@ local function getItem(itemName, inv)
 	end
 	return nil
 end
-VoidwareFunctions.GlobaliseObject("getItem", getItem)
+AtomWareFunctions.GlobaliseObject("getItem", getItem)
 
 local cache = {}
 local function getItemNear(itemName, inv)
@@ -2118,7 +2118,7 @@ local function getItemNear(itemName, inv)
     end
     return nil
 end
-VoidwareFunctions.GlobaliseObject("getItemNear", getItemNear)
+AtomWareFunctions.GlobaliseObject("getItemNear", getItemNear)
 
 local function getHotbarSlot(itemName)
 	for slotNumber, slotTable in pairs(store.localInventory.hotbar) do
@@ -2128,7 +2128,7 @@ local function getHotbarSlot(itemName)
 	end
 	return nil
 end
-VoidwareFunctions.GlobaliseObject("getHotbarSlot", getHotbarSlot)
+AtomWareFunctions.GlobaliseObject("getHotbarSlot", getHotbarSlot)
 
 local function getNearbyObjects(origin, distance)
     assert(typeof(origin) == "Vector3", "Origin must be a Vector3")
@@ -2145,7 +2145,7 @@ local function getNearbyObjects(origin, distance)
     end
     return nearbyObjects
 end
-VoidwareFunctions.GlobaliseObject("getNearyObjects", getNearbyObjects)
+AtomWareFunctions.GlobaliseObject("getNearyObjects", getNearbyObjects)
 
 local function getShieldAttribute(char)
 	local returnedShield = 0
@@ -2156,7 +2156,7 @@ local function getShieldAttribute(char)
 	end
 	return returnedShield
 end
-VoidwareFunctions.GlobaliseObject("getShieldAttribute", getShieldAttribute)
+AtomWareFunctions.GlobaliseObject("getShieldAttribute", getShieldAttribute)
 
 getPickaxe = function()
 	return getItemNear("pick")
@@ -2185,7 +2185,7 @@ local function getSword()
 	end
 	return bestSword, bestSwordSlot
 end
-VoidwareFunctions.GlobaliseObject("getSword", getSword)
+AtomWareFunctions.GlobaliseObject("getSword", getSword)
 
 local function getBow()
 	local bestBow, bestBowSlot, bestBowStrength = nil, nil, 0
@@ -2317,7 +2317,7 @@ local function getSpeed(reduce)
 	end)
 	return reduce and speed ~= 1 and math.max(speed * (0.8 - (0.3 * math.floor(speed))), 1) or speed
 end
-VoidwareFunctions.GlobaliseObject("getSpeed", getSpeed)
+AtomWareFunctions.GlobaliseObject("getSpeed", getSpeed)
 
 local Reach = {Enabled = false}
 local blacklistedblocks = {bed = true, ceramic = true}
@@ -2336,7 +2336,7 @@ local function getScaffold(vec, diagonaltoggle)
 	end
 	return realvec
 end
-VoidwareFunctions.GlobaliseObject("getScaffold", getScaffold)
+AtomWareFunctions.GlobaliseObject("getScaffold", getScaffold)
 
 local function getBestTool(block)
 	local tool = nil
@@ -2354,7 +2354,7 @@ local function getBestTool(block)
 	end
 	return tool
 end
-VoidwareFunctions.GlobaliseObject("getBestTool", getBestTool)
+AtomWareFunctions.GlobaliseObject("getBestTool", getBestTool)
 
 local function GetPlacedBlocksNear(pos, normal)
 	local blocks = {}
@@ -2555,7 +2555,7 @@ startEntityTracking()
 GuiLibrary.SelfDestructEvent.Event:Connect(function()
 	cleanupEntityTracking()
 end)
-VoidwareFunctions.GlobaliseObject("EntityNearPosition", EntityNearPosition)
+AtomWareFunctions.GlobaliseObject("EntityNearPosition", EntityNearPosition)
 
 local function EntityNearMouse(distance)
 	local closestEntity, closestMagnitude = nil, distance
@@ -2574,7 +2574,7 @@ local function EntityNearMouse(distance)
 	end
 	return closestEntity
 end
-VoidwareFunctions.GlobaliseObject("EntityNearMouse", EntityNearMouse)
+AtomWareFunctions.GlobaliseObject("EntityNearMouse", EntityNearMouse)
 
 --[[local function AllNearPosition(distance, amount, sortfunction, prediction)
 	local returnedplayer = {}
@@ -2789,7 +2789,7 @@ local function AllNearPosition(distance, amount, sortfunction, prediction, npcIn
 	end
 	return returnedplayer
 end
-VoidwareFunctions.GlobaliseObject("AllNearPosition", AllNearPosition)
+AtomWareFunctions.GlobaliseObject("AllNearPosition", AllNearPosition)
 
 GuiLibrary.LoadSettingsEvent.Event:Connect(function(res)
 	for i,v in pairs(res) do
@@ -5577,7 +5577,7 @@ run(function()
 		Default = 1
 	})--]]
 	killauracolor = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
-	VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+	AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 		color = {Hue = h, Sat = s, Value = v}
 		killauracolor = color
 		killauracolorChanged:Fire()
@@ -9948,7 +9948,7 @@ sendmessage = function(text)
 		end
 		return bypassMessage
 	end
-	--text = text.." | discord.gg/voidware"
+	--text = text.." | discord.gg/atomware"
 	--text = createBypassMessage(text)
 	local textChatService = game:GetService("TextChatService")
 	local replicatedStorageService = game:GetService("ReplicatedStorage")
@@ -10076,13 +10076,13 @@ run(function()
 			if calling then 
 				table.insert(AutoToxic.Connections, vapeEvents.BedwarsBedBreak.Event:Connect(function(bedTable)
 					if AutoToxicBedDestroyed.Enabled and bedTable.brokenBedTeam.id == lplr:GetAttribute('Team') then
-						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or 'Who needs a bed when you got Voidware <name>? | .gg/voidware'
+						local custommsg = #AutoToxicPhrases6.ObjectList > 0 and AutoToxicPhrases6.ObjectList[math.random(1, #AutoToxicPhrases6.ObjectList)] or 'Who needs a bed when you got AtomWare <name>? | .gg/atomware'
 						if custommsg then
 							custommsg = custommsg:gsub('<name>', (bedTable.player.DisplayName or bedTable.player.Name))
 						end
 						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync(custommsg)
 					elseif AutoToxicBedBreak.Enabled and bedTable.player.UserId == lplr.UserId then
-						local custommsg = #AutoToxicPhrases7.ObjectList > 0 and AutoToxicPhrases7.ObjectList[math.random(1, #AutoToxicPhrases7.ObjectList)] or 'Your bed has been sent to the abyss <teamname>! | .gg/voidware'
+						local custommsg = #AutoToxicPhrases7.ObjectList > 0 and AutoToxicPhrases7.ObjectList[math.random(1, #AutoToxicPhrases7.ObjectList)] or 'Your bed has been sent to the abyss <teamname>! | .gg/atomware'
 						if custommsg then
 							local team = get_bed_team(bedtable.brokenBedTeam.id)
 							local teamname = team and team.displayName:lower() or 'white'
@@ -10099,7 +10099,7 @@ run(function()
 						if killed == lplr then 
 							if (not leavesaid) and killer ~= lplr and AutoToxicDeath.Enabled then
 								leavesaid = true
-								local custommsg = #AutoToxicPhrases3.ObjectList > 0 and AutoToxicPhrases3.ObjectList[math.random(1, #AutoToxicPhrases3.ObjectList)] or 'I was too laggy <name>. That\'s why you won. | .gg/voidware'
+								local custommsg = #AutoToxicPhrases3.ObjectList > 0 and AutoToxicPhrases3.ObjectList[math.random(1, #AutoToxicPhrases3.ObjectList)] or 'I was too laggy <name>. That\'s why you won. | .gg/atomware'
 								if custommsg then
 									custommsg = custommsg:gsub('<name>', (killer.DisplayName or killer.Name))
 								end
@@ -10107,9 +10107,9 @@ run(function()
 							end
 						else
 							if killer == lplr and AutoToxicFinalKill.Enabled then 
-								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Voidware. | .gg/voidware'
+								local custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used AtomWare. | .gg/atomware'
 								if custommsg == lastsaid then
-									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used Voidware. | .gg/voidware'
+									custommsg = #AutoToxicPhrases2.ObjectList > 0 and AutoToxicPhrases2.ObjectList[math.random(1, #AutoToxicPhrases2.ObjectList)] or '<name> things could have ended for you so differently, if you\'ve used AtomWare. | .gg/atomware'
 								else
 									lastsaid = custommsg
 								end
@@ -10128,7 +10128,7 @@ run(function()
 							sendmessage('gg')
 						end
 						if AutoToxicWin.Enabled then
-							sendmessage(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or 'Voidware is simply better everyone. | .gg/voidware')
+							sendmessage(#AutoToxicPhrases.ObjectList > 0 and AutoToxicPhrases.ObjectList[math.random(1, #AutoToxicPhrases.ObjectList)] or 'AtomWare is simply better everyone. | .gg/atomware')
 						end
 					end
 				end))
@@ -10659,7 +10659,7 @@ run(function()
 							else
 								local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 								AntiVoidPart.Color = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-								VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+								AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 									if AntiVoid.Enabled then
 										color = {Hue = h, Sat = s, Value = v}
 										AntiVoidPart.Color = Color3.fromHSV(color.Hue, color.Sat, color.Value)
@@ -12226,7 +12226,7 @@ end)--]]
 		ReachLabel.TextColor3 = Color3.new(1, 1, 1)
 		local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 		ReachLabel.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-		VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+		AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 			color = {Hue = h, Sat = s, Value = v}
 			ReachLabel.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
 		end))
@@ -13302,13 +13302,13 @@ local function collection(tags, module, customadd, customremove)
         table.insert(tab, {Id = obj.Name, RootPart = obj, Shop = obj:HasTag('BedwarsItemShop'), Upgrades = obj:HasTag('TeamUpgradeShopkeeper')})
     end)
 
---VoidwareFunctions.GlobaliseObject("store", store)
-VoidwareFunctions.GlobaliseObject("GlobalStore", store)
+--AtomWareFunctions.GlobaliseObject("store", store)
+AtomWareFunctions.GlobaliseObject("GlobalStore", store)
 
---VoidwareFunctions.GlobaliseObject("bedwars", bedwars)
-VoidwareFunctions.GlobaliseObject("GlobalBedwars", bedwars)
+--AtomWareFunctions.GlobaliseObject("bedwars", bedwars)
+AtomWareFunctions.GlobaliseObject("GlobalBedwars", bedwars)
 
-VoidwareFunctions.GlobaliseObject("VapeBWLoaded", true)
+AtomWareFunctions.GlobaliseObject("VapeBWLoaded", true)
 local function createMonitoredTable(originalTable, onChange)
     local proxy = {}
     local mt = {
@@ -13326,13 +13326,13 @@ local function createMonitoredTable(originalTable, onChange)
 end
 local function onChange(key, oldValue, newValue)
    --print("Changed key:", key, "from", oldValue, "to", newValue)
-   	--VoidwareFunctions.GlobaliseObject("store", store)
-	VoidwareFunctions.GlobaliseObject("GlobalStore", store)
+   	--AtomWareFunctions.GlobaliseObject("store", store)
+	AtomWareFunctions.GlobaliseObject("GlobalStore", store)
 end
 local function onChange2(key, oldValue, newValue)
 	--print("Changed key:", key, "from", oldValue, "to", newValue)
-	--VoidwareFunctions.GlobaliseObject("bedwars", bedwars)
-	VoidwareFunctions.GlobaliseObject("GlobalBedwars", bedwars)
+	--AtomWareFunctions.GlobaliseObject("bedwars", bedwars)
+	AtomWareFunctions.GlobaliseObject("GlobalBedwars", bedwars)
  end
 
 store = createMonitoredTable(store, onChange)

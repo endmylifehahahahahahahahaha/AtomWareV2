@@ -1,6 +1,6 @@
-# AtomWareV2
+﻿# AtomWareV2
 
-A fork of VoidwareBakup.
+A fork of AtomWareBakup.
 
 ## Usage
 

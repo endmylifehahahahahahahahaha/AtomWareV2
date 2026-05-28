@@ -1,4 +1,4 @@
---This watermark is used to delete the file if its cached, remove it to make the file persist after commits.
+﻿--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.
 repeat task.wait() until game:IsLoaded()
 local GuiLibrary
 local VWFunctions
@@ -108,7 +108,7 @@ if (not suc) then shared.CheatEngineMode = true end
 
 local function displayErrorPopup(text, funclist)
 	pcall(function()
-		if errorNotification and type(errorNotification) == 'function' then errorNotification('Voidware', tostring(text), 15) end
+		if errorNotification and type(errorNotification) == 'function' then errorNotification('AtomWare', tostring(text), 15) end
 		local oldidentity = getidentity()
 		setidentity(8)
 		local ErrorPrompt = getrenv().require(game:GetService("CoreGui").RobloxGui.Modules.ErrorPrompt)
@@ -220,12 +220,12 @@ task.spawn(function()
 end)
 
 GuiLibrary = pload("GuiLibrary.lua", true, true)
-VWFunctions = pload("Libraries/VoidwareFunctions.lua", true, true)
+VWFunctions = pload("Libraries/AtomWareFunctions.lua", true, true)
 
 GuiLibrary.SelfDestructEvent.Event:Connect(function() VWFunctions.SelfDestructEvent:Fire() end)
 
 VWFunctions.GlobaliseObject("GuiLibrary", GuiLibrary)
-VWFunctions.GlobaliseObject("VoidwareFunctions", VWFunctions)
+VWFunctions.GlobaliseObject("AtomWareFunctions", VWFunctions)
 VWFunctions.GlobaliseObject("VWFunctions", VWFunctions)
 
 local saveSettingsLoop = coroutine.create(function()
@@ -863,7 +863,7 @@ VapeLogo.TextStrokeColor3 = Color3.new(255, 255, 255)
 VapeLogo.TextScaled = true
 VapeLogo.BackgroundTransparency = 1
 VapeLogo.TextColor3 = Color3.new(255, 255, 255)
-VapeLogo.Text = "VOIDWARE"
+VapeLogo.Text = "ATOMWARE"
 VapeLogo.Name = "Logo"
 VapeLogo.Parent = VapeLogoFrame
 local VapeLogoGradient = Instance.new("UIGradient")
@@ -1537,8 +1537,8 @@ local ModuleSettings = GUI.CreateDivider2("Module Settings")
 local GUISettings = GUI.CreateDivider2("GUI Settings")
 local VWSettings = GUI.CreateDivider2("VW Settings")
 local StreamerModeToggle = {Enabled = false}
-VoidwareFunctions.Controllers:register("UpdateUI", {UIUpdate = Instance.new("BindableEvent")})
-VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+AtomWareFunctions.Controllers:register("UpdateUI", {UIUpdate = Instance.new("BindableEvent")})
+AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 	GuiLibrary.UpdateUI(h,s,v)
 end)
 StreamerModeToggle = VWSettings.CreateToggle({
@@ -1607,11 +1607,11 @@ ModuleSettings.CreateToggle({
 })
 GUIColorSlider = GUI.CreateColorSlider("GUI Theme", function(h, s, v)
 	GUIColor1 = {Hue = h, Sat = s, Value = v}
-	VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate:Fire(h,s,v)
+	AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate:Fire(h,s,v)
 end)
 GUIGradientSlider = GUI.CreateColorSlider("GUI Gradient", function(h, s, v)
 	GUIColor2 = {Hue = h, Sat = s, Value = v}
-	VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate:Fire(h,s,v)
+	AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate:Fire(h,s,v)
 end, true)
 GUIGradientSlider.Object.Visible = GradientUIToggle.Enabled
 GradientUIToggle = GUI.CreateToggle({ 
@@ -1639,7 +1639,7 @@ local windowSortOrder = {
 local windowSortOrder2 = {"Combat", "Blatant", "Render", "Utility", "World"}
 
 local function recodeWindows(tbl) for i,v in pairs(tbl) do GuiLibrary.ObjectsThatCanBeSaved[i.."Window"] = GuiLibrary.ObjectsThatCanBeSaved[v.."Window"] end end
-local Rewrite_Windows_Corresponder = {["Funny"] = "Blatant",["Hot"] = "Blatant",["Exploits"] = "Blatant",["Customisation"] = "Utility",["TP"] = "World",["Voidware"] = "Utility"}
+local Rewrite_Windows_Corresponder = {["Funny"] = "Blatant",["Hot"] = "Blatant",["Exploits"] = "Blatant",["Customisation"] = "Utility",["TP"] = "World",["AtomWare"] = "Utility"}
 recodeWindows(Rewrite_Windows_Corresponder)
 
 local function getVapeSaturation(val)
@@ -1695,7 +1695,7 @@ local function hookObject(obj, property, target)
 			obj[property] = target
 		end
 	end)
-	table.insert(VoidwareFunctions.Connections, con)
+	table.insert(AtomWareFunctions.Connections, con)
 	table.insert(hookedObjects, {
 		Object = obj,
 		Connection = con
@@ -1997,10 +1997,10 @@ if shared.BACKUPTELEPORTMODE then
 					if isfile('vape/NewMainScript.lua') then
 						loadstring(readfile("vape/NewMainScript.lua"))()
 					else
-						loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/vapevoidware/main/NewMainScript.lua", true))()
+						loadstring(game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/main/NewMainScript.lua", true))()
 					end
 				else
-					loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/vapevoidware/main/NewMainScript.lua", true))()
+					loadstring(game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/main/NewMainScript.lua", true))()
 				end
 			]]
 			if shared.VapeDeveloper then
@@ -2015,8 +2015,8 @@ if shared.BACKUPTELEPORTMODE then
 			if shared.VapePrivate then
 				teleportScript = 'shared.VapePrivate = true\n'..teleportScript
 			end
-			if shared.NoVoidwareModules then
-				teleportScript = 'shared.NoVoidwareModules = true\n'..teleportScript
+			if shared.NoAtomWareModules then
+				teleportScript = 'shared.NoAtomWareModules = true\n'..teleportScript
 			end
 			if shared.ProfilesDisabled then
 				teleportScript = 'shared.ProfilesDisabled = true\n'..teleportScript
@@ -2053,10 +2053,10 @@ else
 							if isfile('vape/NewMainScript.lua') then
 								loadstring(readfile("vape/NewMainScript.lua"))()
 							else
-								loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/vapevoidware/main/NewMainScript.lua", true))()
+								loadstring(game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/main/NewMainScript.lua", true))()
 							end
 						else
-							loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/vapevoidware/main/NewMainScript.lua", true))()
+							loadstring(game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/main/NewMainScript.lua", true))()
 						end
 					end
 				]]
@@ -2066,7 +2066,7 @@ else
 					{variable = "VoidDev", value = true},
 					{variable = "ClosetCheatMode", value = true},
 					{variable = "VapePrivate", value = true},
-					{variable = "NoVoidwareModules", value = true},
+					{variable = "NoAtomWareModules", value = true},
 					{variable = "ProfilesDisabled", value = true},
 					{variable = "NoAutoExecute", value = true},
 					{variable = "TeleportExploitAutowinEnabled", value = true},
@@ -2233,7 +2233,7 @@ GeneralSettings.CreateButton2({
 })
 local function InfoNotification(title, text, delay)
 	local suc, res = pcall(function()
-		local frame = GuiLibrary.CreateNotification(title or "Voidware", text or "Successfully called function", delay or 7, "assets/InfoNotification.png")
+		local frame = GuiLibrary.CreateNotification(title or "AtomWare", text or "Successfully called function", delay or 7, "assets/InfoNotification.png")
 		return frame
 	end)
 	return (suc and res)
@@ -2244,7 +2244,7 @@ local bedwarsID = {
 	lobby = {6872265039}
 }
 local function loadVape()
-	InfoNotification("Voidware", "Loading...this might take 5-10 seconds", 5)
+	InfoNotification("AtomWare", "Loading...this might take 5-10 seconds", 5)
 	--game:GetService("Players").LocalPlayer.GameplayPaused = true
 	if not shared.VapeIndependent then
 		pload("Universal.lua", true)
@@ -2265,7 +2265,7 @@ local function loadVape()
 			fileName1 = "CustomModules/"..CE.."6872265039.lua"
 			fileName2 = "CustomModules/VW6872265039.lua"
 		end
-		--if CE == "CE" then InfoNotification("Voidware", "Backup mode activated!", 3) end 
+		--if CE == "CE" then InfoNotification("AtomWare", "Backup mode activated!", 3) end 
 		--if shared.CheatEngineMode then InfoNotification(fileName1, fileName2, 2) end
 		warn("[CheatEngineMode]: ", tostring(shared.CheatEngineMode))
 		warn("[TestingMode]: ", tostring(shared.TestingMode))
@@ -2310,9 +2310,9 @@ local function loadVape()
 	end
 	--game:GetService("Players").LocalPlayer.GameplayPaused = false
 	if shared.CheatEngineMode then
-		if shared.CheatEngineMode and (not shared.VapeSwitchServers) then InfoNotification("Voidware", "Loaded in Cheat Engine Mode! Some functions might be missing.", 1.5) end
+		if shared.CheatEngineMode and (not shared.VapeSwitchServers) then InfoNotification("AtomWare", "Loaded in Cheat Engine Mode! Some functions might be missing.", 1.5) end
 	else
-		InfoNotification("Voidware", "Successfully loaded Voidware :D", 1.5)
+		InfoNotification("AtomWare", "Successfully loaded AtomWare :D", 1.5)
 	end
 	coroutine.resume(saveSettingsLoop)
 	shared.VapeFullyLoaded = true

@@ -1,4 +1,4 @@
-
+﻿
 repeat task.wait() until game:IsLoaded()
 repeat task.wait() until shared.GuiLibrary
 
@@ -10,7 +10,7 @@ local baseDirectory = shared.RiseMode and "rise/" or "vape/"
 
 local function vapeGithubRequest(scripturl)
 	if not isfile(baseDirectory..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
 		assert(suc, res)
 		assert(res ~= "404: Not Found", res)
 		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
@@ -143,9 +143,9 @@ local colors = {
     SkyBlue = Color3.fromRGB(135, 206, 235),
     Violet = Color3.fromRGB(238, 130, 238)
 }
-VoidwareFunctions.GlobaliseObject("ColorTable", colors)
-VoidwareFunctions.LoadFunctions("Universal")
-VoidwareFunctions.LoadServices()
+AtomWareFunctions.GlobaliseObject("ColorTable", colors)
+AtomWareFunctions.LoadFunctions("Universal")
+AtomWareFunctions.LoadServices()
 
 local lplr = game:GetService("Players").LocalPlayer
 local lightingService = game:GetService("Lighting")
@@ -161,18 +161,18 @@ local function warningNotification(title, text, delay)
     warn(title..": "..text)
 	return (suc and res)
 end
-VoidwareFunctions.GlobaliseObject("warningNotification", warningNotification)
+AtomWareFunctions.GlobaliseObject("warningNotification", warningNotification)
 
 local function InfoNotification(title, text, delay)
 	local suc, res = pcall(function()
-		local frame = GuiLibrary.CreateNotification(title or "Voidware", text or "Successfully called function", delay or 7, "assets/InfoNotification.png")
+		local frame = GuiLibrary.CreateNotification(title or "AtomWare", text or "Successfully called function", delay or 7, "assets/InfoNotification.png")
 		return frame
 	end)
     warn(title..": "..text)
 	return (suc and res)
 end
-VoidwareFunctions.GlobaliseObject("InfoNotification", InfoNotification)
-VoidwareFunctions.GlobaliseObject("infoNotification", InfoNotification)
+AtomWareFunctions.GlobaliseObject("InfoNotification", InfoNotification)
+AtomWareFunctions.GlobaliseObject("infoNotification", InfoNotification)
 
 local function errorNotification(title, text, delay)
     local suc, res = pcall(function()
@@ -183,13 +183,13 @@ local function errorNotification(title, text, delay)
     warn(title..": "..text)
     return (suc and res)
 end
-VoidwareFunctions.GlobaliseObject("errorNotification", errorNotification)
+AtomWareFunctions.GlobaliseObject("errorNotification", errorNotification)
 
 local newcolor = function() return {Hue = 0, Sat = 0, Value = 0} end
 
 local textlabel = Instance.new("TextLabel")
 textlabel.Size = UDim2.new(1, 0, 0, 36)
-textlabel.Text = "discord.gg/voidware"
+textlabel.Text = "discord.gg/atomware"
 textlabel.BackgroundTransparency = 1
 textlabel.ZIndex = 10
 textlabel.TextStrokeTransparency = 0
@@ -418,7 +418,7 @@ end)
 				local ChatTag = {}
 				ChatTag[yes] =
 					{
-						TagText = "VOIDWARE USER",
+						TagText = "ATOMWARE USER",
 						TagColor = Color3.fromRGB(255, 0, 0),
 					}
 				local oldchanneltab
@@ -534,7 +534,7 @@ run(function() local CharacterOutline = {}
 							else
 								local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 								outline.OutlineColor = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-								VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+								AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 									if CharacterOutline.Enabled then
 										color = {Hue = h, Sat = s, Value = v}
 										outline.OutlineColor = Color3.fromHSV(color.Hue, color.Sat, color.Value)
@@ -643,12 +643,12 @@ run(function() local CloudMods = {}
 end)
 
 run(function() 
-	local RestartVoidware = {}
-	RestartVoidware = GuiLibrary.ObjectsThatCanBeSaved.HotWindow.Api.CreateOptionsButton({
+	local RestartAtomWare = {}
+	RestartAtomWare = GuiLibrary.ObjectsThatCanBeSaved.HotWindow.Api.CreateOptionsButton({
 		Name = 'Restart',
 		Function = function(calling)
 			if calling then 
-				RestartVoidware["ToggleButton"](false) 
+				RestartAtomWare["ToggleButton"](false) 
 				wait(0.1)
 				GuiLibrary.Restart()
 			end
@@ -657,7 +657,7 @@ run(function()
 end)
 
 run(function() local ReinstallProfiles = {}
-	ReinstallProfiles = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	ReinstallProfiles = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 		Name = 'ReinstallProfiles',
 		Function = function(calling)
 			if calling then 
@@ -1027,7 +1027,7 @@ end)
 run(function() local VapePrivateDetector = {Enabled = false}
 	local VPLeave = {Enabled = false}
 	local alreadydetected = {}
-	VapePrivateDetector = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	VapePrivateDetector = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 		Name = "VapePrivateDetector",
 		Function = function(callback)
 			if callback then
@@ -1084,7 +1084,7 @@ run(function() local VapePrivateDetector = {Enabled = false}
 end)
 
 run(function() local InfiniteYield = {Enabled = false}
-	InfiniteYield = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	InfiniteYield = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 		Name = "InfiniteYield",
 		HoverText = "Loads the Infinite Yield script.",
 		Function = function(callback)
@@ -1098,7 +1098,7 @@ run(function() local InfiniteYield = {Enabled = false}
 end)
 
 run(function() local Dex = {Enabled = false}
-	Dex = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	Dex = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 		Name = "Dex",
 		HoverText = "Loads Dex",
 		Function = function(callback)
@@ -1170,7 +1170,7 @@ end)
 				local ChatTag = {}
 				ChatTag[yes] =
 					{
-						TagText = "VOIDWARE USER",
+						TagText = "ATOMWARE USER",
 						TagColor = Color3.fromRGB(255, 0, 0),
 					}
 				local oldchanneltab
@@ -1300,7 +1300,7 @@ run(function()
 			end
 		end
 	end
-	EditWL = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	EditWL = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 		Name = 'EditWL',
 		HoverText = "Use this to edit your whitelist data (whitelisted users only!)",
 		Function = function(calling)
@@ -1314,17 +1314,17 @@ run(function()
 				local suc2, tagText = checkTagText()
 				local suc3, tagColor, isCustom = checkTagColor()
 				local suc4, user, isCustom = checkRblxUsername()
-				if not suc1 then errorNotification("EditWL-API_KEY", "Please specify your WL API Key in the textbox! \n More information in discord.gg/voidware \n (whitelisted users only)", 7) end
+				if not suc1 then errorNotification("EditWL-API_KEY", "Please specify your WL API Key in the textbox! \n More information in discord.gg/atomware \n (whitelisted users only)", 7) end
 				if suc1 and (suc2 or suc3 or suc4) then
 					local ArgTable = {}
 					ArgTable["api_key"] = apiKey
 					if suc2 then ArgTable["TagText"] = tagText end
 					if suc3 then ArgTable["TagColor"] = tagColor end
 					if suc4 then ArgTable["RobloxUsername"] = user end
-					InfoNotification("EditWL", "Sent request to the Voidware API! Waiting for response...", 7)
-					if not shared.VoidwareFunctions then errorNotification("EditWL-API_HANDLER", "Critical file not found!", 3) end
-					local VoidwareFunctions = shared.VoidwareFunctions
-					local response = VoidwareFunctions.EditWL(ArgTable)
+					InfoNotification("EditWL", "Sent request to the AtomWare API! Waiting for response...", 7)
+					if not shared.AtomWareFunctions then errorNotification("EditWL-API_HANDLER", "Critical file not found!", 3) end
+					local AtomWareFunctions = shared.AtomWareFunctions
+					local response = AtomWareFunctions.EditWL(ArgTable)
 					task.spawn(function()
 						repeat task.wait() until response
 						if type(response) == "string" then 
@@ -1746,34 +1746,34 @@ run(function()
 	})
 end)
 
---[[run(function() local RestartVoidware = {}
-	RestartVoidware = GuiLibrary.ObjectsThatCanBeSaved.FunnyWindow.Api.CreateOptionsButton({
+--[[run(function() local RestartAtomWare = {}
+	RestartAtomWare = GuiLibrary.ObjectsThatCanBeSaved.FunnyWindow.Api.CreateOptionsButton({
 		Name = 'DISCORD ALT DETECTOR',
 		Function = function(calling)
 			if calling then 
-				warningNotification("Voidware - Discord API", "Checking the API....", 5)
+				warningNotification("AtomWare - Discord API", "Checking the API....", 5)
 				wait(5)
-				warningNotification("Voidware - Discord API", "Alt detected of uexedus - 616942439160348683 in Voidware! Check direct messages for more info", 15)
-				warningNotification("Voidware - Discord API", "Alt detected of systemxvoid - 998979962948288634 in Voidware! Check direct messages for more info", 15)
-				warningNotification("Voidware - Discord API", "Alt detected of maxlasertech - 691944570312851556 in Voidware! Check direct messages for more info", 15)
+				warningNotification("AtomWare - Discord API", "Alt detected of uexedus - 616942439160348683 in AtomWare! Check direct messages for more info", 15)
+				warningNotification("AtomWare - Discord API", "Alt detected of systemxvoid - 998979962948288634 in AtomWare! Check direct messages for more info", 15)
+				warningNotification("AtomWare - Discord API", "Alt detected of maxlasertech - 691944570312851556 in AtomWare! Check direct messages for more info", 15)
 			end
 		end
 	}) 
 end)
 
-run(function() local RestartVoidware = {}
-	RestartVoidware = GuiLibrary.ObjectsThatCanBeSaved.FunnyWindow.Api.CreateOptionsButton({
+run(function() local RestartAtomWare = {}
+	RestartAtomWare = GuiLibrary.ObjectsThatCanBeSaved.FunnyWindow.Api.CreateOptionsButton({
 		Name = 'DISCORD DM NOTIFIER',
 		Function = function(calling)
 			if calling then 
-				warningNotification("Voidware - Discord API", "Checking the API....", 5)
+				warningNotification("AtomWare - Discord API", "Checking the API....", 5)
 				wait(5)
-				warningNotification("Voidware - Discord API", "Sender: Voidware Assistant#0889", 15)
+				warningNotification("AtomWare - Discord API", "Sender: AtomWare Assistant#0889", 15)
 				local messages = {
 					"ERCHO", "WHAT IS DISCORD", "API IN UR MODULESS!!!!", "!!!", "how tf did u detect max and void alt", "???", "dude", "how did u detect max", "maxlasertech"
 				}
 				for i,v in pairs(messages) do
-					warningNotification("Voidware - Discord API", "Message: "..messages[i], 15)
+					warningNotification("AtomWare - Discord API", "Message: "..messages[i], 15)
 				end
 			end
 		end

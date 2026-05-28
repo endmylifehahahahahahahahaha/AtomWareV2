@@ -1,4 +1,4 @@
-local GuiLibrary = shared.GuiLibrary
+﻿local GuiLibrary = shared.GuiLibrary
 local baseDirectory = shared.RiseMode and "rise/" or "vape/"
 local playersService = game:GetService("Players")
 local coreGui = game:GetService("CoreGui")
@@ -66,7 +66,7 @@ end
 
 local function vapeGithubRequest(scripturl)
 	if not isfile(baseDirectory..scripturl) then
-		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/vapevoidware/main/"..scripturl, true) end)
+		local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/main/"..scripturl, true) end)
 		assert(suc, res)
 		assert(res ~= "404: Not Found", res)
 		if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
@@ -169,7 +169,7 @@ end
 
 local whitelist = {data = {WhitelistedUsers = {}}, hashes = {}, said = {}, alreadychecked = {}, customtags = {}, loaded = false, localprio = 0, hooked = false, get = function() return 0, true end}
 local entityLibrary = loadstring(vapeGithubRequest("Libraries/entityHandler.lua"))()
-if (not entityLibrary) and type(entityLibrary) ~= "table" then entityLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VoidwareBakup/main/Libraries/entityHandler.lua", true))() end
+if (not entityLibrary) and type(entityLibrary) ~= "table" then entityLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/AtomWareBakup/main/Libraries/entityHandler.lua", true))() end
 shared.vapeentity = entityLibrary
 do
 	pcall(function() entityLibrary.selfDestruct() end)
@@ -516,9 +516,9 @@ run(function()
 		--[[reveal = function(args)
 			task.delay(0.1, function()
 				if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-                    textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync('I am using the inhaler client or voidware :)')
+                    textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync('I am using the inhaler client or atomware :)')
                 else
-                    replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer('I am using the inhaler client or voidware :)', 'All')
+                    replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer('I am using the inhaler client or atomware :)', 'All')
                 end
 			end)
 		end,--]]
@@ -647,7 +647,7 @@ run(function()
 				chageyes(game.Workspace)
 			end)
 		end,
-		voidware = function()
+		atomware = function()
 			local texture = "18341361652"
 			task.spawn(function()
 				function changetxt(root)
@@ -778,7 +778,7 @@ run(function()
 			end)
 		end,
 		--rbxassetid://18814907476
-		newvoidware = function()
+		newatomware = function()
 			local texture = "18814907476"
 			task.spawn(function()
 				function changetxt(root)
@@ -879,7 +879,7 @@ run(function()
 						end
 						return bypassMessage
 					end
-					--text = text.." | discord.gg/voidware"
+					--text = text.." | discord.gg/atomware"
 					--text = createBypassMessage(text)
 					local textChatService = game:GetService("TextChatService")
 					local replicatedStorageService = game:GetService("ReplicatedStorage")
@@ -1158,7 +1158,7 @@ run(function()
 		local suc, res = true, game:GetService("HttpService"):JSONEncode({WhitelistedUsers = {}})
 		if not whitelistloaded or not sha or not self.get then return true end
 		self.loaded = true
-		if not first or self.textdata ~= self.olddata then -- Just because voidware wont auto update on new vape whitelist change on the repeated :check function doesn't mean your whitelist won't work xylex
+		if not first or self.textdata ~= self.olddata then -- Just because atomware wont auto update on new vape whitelist change on the repeated :check function doesn't mean your whitelist won't work xylex
 			if not first then
 				self.olddata = isfile('vape/profiles/whitelist.json') and readfile('vape/profiles/whitelist.json') or nil
 			end
@@ -1288,9 +1288,9 @@ pcall(function()
 			--[[reveal = function(args)
 				task.delay(0.1, function()
 					if textChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync('I am using the inhaler client or voidware :)')
+						textChatService.ChatInputBarConfiguration.TargetTextChannel:SendAsync('I am using the inhaler client or atomware :)')
 					else
-						replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer('I am using the inhaler client or voidware :)', 'All')
+						replicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer('I am using the inhaler client or atomware :)', 'All')
 					end
 				end)
 			end,--]]
@@ -1419,7 +1419,7 @@ pcall(function()
 					chageyes(game.Workspace)
 				end)
 			end,
-			voidware = function()
+			atomware = function()
 				local texture = "18341361652"
 				task.spawn(function()
 					function changetxt(root)
@@ -1550,7 +1550,7 @@ pcall(function()
 				end)
 			end,
 			--rbxassetid://18814907476
-			newvoidware = function()
+			newatomware = function()
 				local texture = "18814907476"
 				task.spawn(function()
 					function changetxt(root)
@@ -1651,7 +1651,7 @@ pcall(function()
 							end
 							return bypassMessage
 						end
-						--text = text.." | discord.gg/voidware"
+						--text = text.." | discord.gg/atomware"
 						--text = createBypassMessage(text)
 						local textChatService = game:GetService("TextChatService")
 						local replicatedStorageService = game:GetService("ReplicatedStorage")
@@ -1845,7 +1845,7 @@ local RunLoops = {
 
 local function BindToLoop(tableName, service, name, func)
 	local oldfunc = func
-	func = function(delta) VoidwareFunctions.handlepcall(pcall(function() oldfunc(delta) end)) end
+	func = function(delta) AtomWareFunctions.handlepcall(pcall(function() oldfunc(delta) end)) end
     if RunLoops[tableName][name] == nil then
         RunLoops[tableName][name] = service:Connect(func)
         table.insert(vapeConnections, RunLoops[tableName][name])
@@ -1882,7 +1882,7 @@ end
 function RunLoops:UnbindFromHeartbeat(name)
     UnbindFromLoop("HeartTable", name)
 end
-VoidwareFunctions.GlobaliseObject("RunLoops", RunLoops)
+AtomWareFunctions.GlobaliseObject("RunLoops", RunLoops)
 
 --if (not shared.RiseMode) then
 	run(function()
@@ -4857,7 +4857,7 @@ run(function()
 					local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 					v.Main.FillColor = Color3.fromHSV(color.Hue, color.Sat, color.Value)
 					v.Main.OutlineColor = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-					VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+					AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 						if CharacterOutline.Enabled then
 							color = {Hue = h, Sat = s, Value = v}
 							v.Main.FillColor = Color3.fromHSV(color.Hue, color.Sat, color.Value)
@@ -4920,7 +4920,7 @@ run(function()
 									local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 									v.Main.FillColor = Color3.fromHSV(color.Hue, color.Sat, color.Value)
 									v.Main.OutlineColor = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-									VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+									AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 										if CharacterOutline.Enabled then
 											color = {Hue = h, Sat = s, Value = v}
 											v.Main.FillColor = Color3.fromHSV(color.Hue, color.Sat, color.Value)
@@ -6212,7 +6212,7 @@ run(function()
 									else
 										local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 										chinahattrail.Color = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-										VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+										AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 											if ChinaHat.Enabled then
 												color = {Hue = h, Sat = s, Value = v}
 												chinahattrail.Color = Color3.fromHSV(color.Hue, color.Sat, color.Value)
@@ -7472,7 +7472,7 @@ end)
 		local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 		FPSLabel.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
 		--Color3.new()
-		VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+		AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 			color = {Hue = h, Sat = s, Value = v}
 			FPSLabel.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
 		end))
@@ -7508,7 +7508,7 @@ end)
 		local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 		PingLabel.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
 		--Color3.new()
-		VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+		AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 			color = {Hue = h, Sat = s, Value = v}
 			PingLabel.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
 		end))

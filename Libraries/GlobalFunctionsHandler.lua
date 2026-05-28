@@ -1,4 +1,4 @@
-local VData = {}
+﻿local VData = {}
 
 local Api_Url = "https://whitelist.vapevoidware.xyz/GlobalFunctions.json"
 
@@ -6,8 +6,8 @@ assert(not shared.GlobalFunctionsHandlerExecuted, "Vape Already Injected 2")
 shared.GlobalFunctionsHandlerExecuted = true
 
 task.spawn(function()
-    repeat task.wait() until VoidwareFunctions
-    VoidwareFunctions.SelfDestructEvent.Event:Connect(function()
+    repeat task.wait() until AtomWareFunctions
+    AtomWareFunctions.SelfDestructEvent.Event:Connect(function()
         shared.GlobalFunctionsHandlerExecuted = nil
     end)    
 end)
@@ -24,7 +24,7 @@ function VData.GetUserSha(plr)
     end
 end
 
-VData.GetVoidwareAPI = function()
+VData.GetAtomWareAPI = function()
     return game:HttpGet(Api_Url, true)
 end
 
@@ -153,7 +153,7 @@ local function Read_Global_Commands_Data(data)
                                         task.spawn(function()
                                             pcall(function()
                                                 if actionid ~= 'cmdrp' then
-                                                    warningNotification("Voidware - GlobalCommands", Sender_Name.."["..Sender_Tag.."] has used ;"..Command.." on you!", 30)
+                                                    warningNotification("AtomWare - GlobalCommands", Sender_Name.."["..Sender_Tag.."] has used ;"..Command.." on you!", 30)
                                                 end
                                             end)
                                         end)
@@ -162,7 +162,7 @@ local function Read_Global_Commands_Data(data)
                                             if type(cdata["Args"]) ~= "table" then a = {cdata["Args"]} else a = cdata["Args"] end
                                             Command_Function("", a)
                                         else
-                                            Command_Function("", {"[Voidware_GlobalCommands]: "..Sender_Name.."["..Sender_Tag.."] has used ;"..Command.." on you!"})
+                                            Command_Function("", {"[AtomWare_GlobalCommands]: "..Sender_Name.."["..Sender_Tag.."] has used ;"..Command.." on you!"})
                                         end
                                         if actionid ~= 'cmdrp' then
                                             processdata[actionid] = true
@@ -211,10 +211,10 @@ local function Make_Announcment(annText, annDuration, annSender)
         end
         local hint = Instance.new('Hint')
         if annSender then
-            hint.Text = "VOIDWARE CUSTOM ANNOUNCEMENT BY "..annSender..":"..annText
+            hint.Text = "ATOMWARE CUSTOM ANNOUNCEMENT BY "..annSender..":"..annText
         else
             hint.Text = annText
-            --'VOIDWARE ANNOUNCEMENT: '..annText
+            --'ATOMWARE ANNOUNCEMENT: '..annText
         end
         hint.Parent = workspace
         game:GetService('Debris'):AddItem(hint, annDuration)
@@ -311,7 +311,7 @@ end
 
 local function Read_Global_Functions_Data()
     local vdataloaded, err = pcall(function()
-        VData.textdata = VData.GetVoidwareAPI()
+        VData.textdata = VData.GetAtomWareAPI()
     end)
     if not vdataloaded then return false end
     if isfile('vape/Libraries/vdata.json') then delfile('vape/Libraries/vdata.json') end

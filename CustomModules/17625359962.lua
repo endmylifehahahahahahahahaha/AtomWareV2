@@ -1,2 +1,2 @@
-repeat task.wait() until game:IsLoaded()
-print("Voidware x Rivals")
+﻿repeat task.wait() until game:IsLoaded()
+print("AtomWare x Rivals")

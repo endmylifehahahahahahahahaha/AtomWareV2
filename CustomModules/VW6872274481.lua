@@ -1,4 +1,4 @@
-repeat task.wait() until game:IsLoaded()
+﻿repeat task.wait() until game:IsLoaded()
 repeat task.wait() until shared.GuiLibrary
 
 local function run(func)
@@ -21,13 +21,13 @@ if (not shared.GlobalBedwars) or (shared.GlobalBedwars and type(shared.GlobalBed
 end
 local entityLibrary = shared.vapeentity
 local RunLoops = shared.RunLoops
-local VoidwareStore = {
+local AtomWareStore = {
 	bedtable = {},
 	Tweening = false
 }
 
-VoidwareFunctions.GlobaliseObject("lplr", game:GetService("Players").LocalPlayer)
-VoidwareFunctions.LoadFunctions("Bedwars")
+AtomWareFunctions.GlobaliseObject("lplr", game:GetService("Players").LocalPlayer)
+AtomWareFunctions.LoadFunctions("Bedwars")
 
 local function BedwarsInfoNotification(mes)
     local bedwars = shared.GlobalBedwars
@@ -48,7 +48,7 @@ local function BedwarsErrorNotification(mes)
 end
 getgenv().BedwarsErrorNotification = BedwarsErrorNotification
 
-VoidwareFunctions.LoadFunctions("Bedwars")
+AtomWareFunctions.LoadFunctions("Bedwars")
 
 local gameCamera = game.Workspace.CurrentCamera
 
@@ -704,7 +704,7 @@ run(function()
 			local oldemote
 			local emo2 = {}
 			local credits
-			SetEmote = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+			SetEmote = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 				Name = 'SetEmote',
 				HoverText = "Sets your emote",
 				Function = function(calling)
@@ -1871,7 +1871,7 @@ run(function()
 					else
 						local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 						sloticon.Parent.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-						VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+						AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 							color = {Hue = h, Sat = s, Value = v}
 							sloticon.Parent.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
 						end))
@@ -1906,7 +1906,7 @@ run(function()
 						else
 							local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 							highlight.Color = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-							VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+							AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 								color = {Hue = h, Sat = s, Value = v}
 								highlight.Color = Color3.fromHSV(color.Hue, color.Sat, color.Value)
 							end))
@@ -2119,7 +2119,7 @@ run(function()
 				else
 					local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
 					healthbar.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-					VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
+					AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h,s,v)
 						if HighlightVisuals.Enabled then
 							color = {Hue = h, Sat = s, Value = v}
 							healthbar.BackgroundColor3 = Color3.fromHSV(color.Hue, color.Sat, color.Value)
@@ -2371,14 +2371,14 @@ end)
 
 run(function() 
 	local AutoBedDefense = {}
-	AutoBedDefense = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	AutoBedDefense = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 		Name = 'AutoBedDefense',
 		HoverText = 'Auto puts bed defense the moment u get blocks (useful when someone spams fireballs at ur bed)',
 		Function = function(calling)
 			if calling then 
 				task.spawn(function()
 					while task.wait(1) and AutoBedDefense.Enabled do
-						--GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.OptionsButtons.BedProtector.ToggleButton(true)
+						--GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.OptionsButtons.BedProtector.ToggleButton(true)
 						GuiLibrary.ObjectsThatCanBeSaved.BedProtectorOptionsButton.Api.ToggleButton()
 					end
 				end)
@@ -2400,7 +2400,7 @@ run(function()
 			end
 		end
 	end
-	ClanDetector = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	ClanDetector = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 		Name = "ClanDetector",
 		Approved = true,
 		Function = function(callback)
@@ -2559,7 +2559,7 @@ run(function()
 
     local antiDeathStatus = handlers.new()
 
-    antiDeath = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+    antiDeath = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
         Name = 'AntiDeath',
         Function = function(callback)
             if callback then
@@ -2915,7 +2915,7 @@ run(function()
     local function infoNotification(title, text, delay, button_table)
         local suc, res = pcall(function()
             local frame = GuiLibrary.CreateNotification(
-                title or "Voidware", 
+                title or "AtomWare", 
                 text or "Successfully called function", 
                 delay or 7, 
                 "assets/InfoNotification.png", 
@@ -2941,7 +2941,7 @@ run(function()
                     local function InfoNotification(title, text, delay, button_table)
                         local suc, res = pcall(function()
                             local frame = GuiLibrary.CreateNotification(
-                                title or "Voidware", 
+                                title or "AtomWare", 
                                 text or "Successfully called function", 
                                 delay or 7, 
                                 "assets/InfoNotification.png", 
@@ -2967,7 +2967,7 @@ run(function()
         local function InfoNotification2(title, text, delay, button_table)
             local suc, res = pcall(function()
                 local frame = GuiLibrary.CreateInteractableNotification(
-                    title or "Voidware", 
+                    title or "AtomWare", 
                     text or "Successfully called function", 
                     delay or 7, 
                     "assets/InfoNotification.png", 
@@ -3543,7 +3543,7 @@ run(function()
 				hash = cheat
 			})
 			game:GetService('StarterGui'):SetCore('SendNotification', {
-				Title = 'Voidware',
+				Title = 'AtomWare',
 				Text = 'Successfully claimed the Cheatcode Egg!',
 				Duration = 10,
 			})
@@ -3700,7 +3700,7 @@ task.spawn(function()
         end
         end)
     end
-    VoidwareStore.Tweening = tweening
+    AtomWareStore.Tweening = tweening
     tweening = false
     task.wait()
   until not vapeInjected
@@ -3708,7 +3708,7 @@ end)
 local vapeAssert = function(argument, title, text, duration, hault, moduledisable, module) 
 	if not argument then
     local suc, res = pcall(function()
-    local notification = GuiLibrary.CreateNotification(title or "Voidware", text or "Failed to call function.", duration or 20, "assets/WarningNotification.png")
+    local notification = GuiLibrary.CreateNotification(title or "AtomWare", text or "Failed to call function.", duration or 20, "assets/WarningNotification.png")
     notification.IconLabel.ImageColor3 = Color3.new(220, 0, 0)
     notification.Frame.Frame.ImageColor3 = Color3.new(220, 0, 0)
     if moduledisable and (module and GuiLibrary.ObjectsThatCanBeSaved[module.."OptionsButton"].Api.Enabled) then GuiLibrary.ObjectsThatCanBeSaved[module.."OptionsButton"].Api.ToggleButton(false) end
@@ -3860,7 +3860,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
 		end
 		for i,v in pairs(collectionService:GetTagged("Drone")) do
 			local plr = playersService:GetPlayerByUserId(v:GetAttribute("PlayerUserId"))
-			if plr and plr ~= lplr and plr.Team and lplr.Team and plr.Team ~= lplr.Team and ({VoidwareFunctions:GetPlayerType(plr)})[2] and abletocalculate() and v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health then
+			if plr and plr ~= lplr and plr.Team and lplr.Team and plr.Team ~= lplr.Team and ({AtomWareFunctions:GetPlayerType(plr)})[2] and abletocalculate() and v.PrimaryPart and v:FindFirstChild("Humanoid") and v.Humanoid.Health then
 				if sortmethods[sortmethod](v.PrimaryPart, v.Humanoid.Health) and raycasted(v.PrimaryPart) then
 					sort = healthmethod and v.Humanoid.Health or GetMagnitudeOf2Objects(lplr.Character:WaitForChild("HumanoidRootPart"), v.PrimaryPart)
 					entity.Player = {Character = v, Name = "Drone", DisplayName = "Drone", UserId = 1}
@@ -3885,7 +3885,7 @@ local function FindTarget(dist, blockRaycast, includemobs, healthmethod)
     return entity
 end
 local function isVulnerable(plr) return plr.Humanoid.Health > 0 and not plr.Character.FindFirstChildWhichIsA(plr.Character, "ForceField") end
-VoidwareFunctions.GlobaliseObject("isVulnarable", isVulnarable)
+AtomWareFunctions.GlobaliseObject("isVulnarable", isVulnarable)
 local function EntityNearPosition(distance, ignore, overridepos)
 	local closestEntity, closestMagnitude = nil, distance
 	if entityLibrary.isAlive then
@@ -3998,7 +3998,7 @@ local function EntityNearPosition(distance, ignore, overridepos)
 	end
 	return closestEntity
 end
-VoidwareFunctions.GlobaliseObject("EntityNearPosition", EntityNearPosition)
+AtomWareFunctions.GlobaliseObject("EntityNearPosition", EntityNearPosition)
 --[[run(function()
 	local Autowin = {Enabled = false}
 	local AutowinNotification = {Enabled = true}
@@ -4082,7 +4082,7 @@ VoidwareFunctions.GlobaliseObject("EntityNearPosition", EntityNearPosition)
 								repeat task.wait() until FindEnemyBed() ~= bed or not isAlive()
 								if EntityNearPosition(45) and EntityNearPosition(45).RootPart and isAlive() then
 									if AutowinNotification.Enabled then
-										local team = VoidwareStore.bedtable[bed] or "unknown"
+										local team = AtomWareStore.bedtable[bed] or "unknown"
 										task.spawn(InfoNotification, "Autowin", "Killing "..team:lower().." team's teamates", 5)
 									end
 									repeat
@@ -4212,7 +4212,7 @@ end)--]]
 						end
 						end)
 						if AutowinNotification.Enabled then
-							local bedname = VoidwareStore.bedtable[bed] or "unknown"
+							local bedname = AtomWareStore.bedtable[bed] or "unknown"
 							task.spawn(InfoNotification, "Autowin", "Destroying "..bedname:lower().." team's bed", 5)
 						end
 						if not isEnabled("Nuker") then
@@ -4221,7 +4221,7 @@ end)--]]
 						repeat task.wait() until FindEnemyBed() ~= bed or not isAlive()
 						if FindTarget(45, store.blockRaycast) and FindTarget(45, store.blockRaycast).RootPart and isAlive() then
 							if AutowinNotification.Enabled then
-								local team = VoidwareStore.bedtable[bed] or "unknown"
+								local team = AtomWareStore.bedtable[bed] or "unknown"
 								task.spawn(InfoNotification, "Autowin", "Killing "..team:lower().." team's teamates", 5)
 							end
 							repeat
@@ -4312,7 +4312,7 @@ end)--]]
 			game:GetService("ReplicatedStorage").Modules:FindFirstChild("anticheat"):Destroy()
 		end
 	end
-	Disabler = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	Disabler = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 		Name = "Disabler",
 		Function = function(callback)
 			if callback then
@@ -4403,7 +4403,7 @@ end)--]]
 
 run(function()
 	local GetHost = {Enabled = false}
-	GetHost = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+	GetHost = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
 		Name = "GetHost",
 		HoverText = ":troll:",
 		Function = function(callback) 
@@ -4503,7 +4503,7 @@ run(function()
 
 										local tag_data = shared.vapewhitelist:tag(needed_plr)
 										if tag_data and #tag_data > 0 then
-											if tag_data[1]["text"] == "VOIDWARE USER" then rank = "Normal" end
+											if tag_data[1]["text"] == "ATOMWARE USER" then rank = "Normal" end
 											local tag_text = tag_data[1]["text"].." - "..rank
 											local tag_color = tag_data[1]["color"]
 											local updated_text = add_colored_text(current_text, tag_text, tag_color)
@@ -4907,7 +4907,7 @@ end)--]]
 					end
 				end)
 			else
-				VoidwareStore.jumpTick = tick() + 5
+				AtomWareStore.jumpTick = tick() + 5
 			end
 		end
 	})
@@ -7897,7 +7897,7 @@ run(function()
                         else
                             local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
                             v.Color = Color3.fromHSV(color.Hue, color.Sat, color.Value)
-                            VoidwareFunctions.Connections:register(VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h, s, v)
+                            AtomWareFunctions.Connections:register(AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h, s, v)
                                 if TexturePacksV2_GUI_Elements.GuiSync.Enabled and TexturePacksV2.Enabled then
                                     local color = GuiLibrary.ObjectsThatCanBeSaved["Gui ColorSliderColor"].Api
                                     v.Color = Color3.fromHSV(color.Hue, color.Sat, color.Value)
@@ -8087,9 +8087,9 @@ end)--]]
 	local oldtweencreate = tween.Create;
 	local defaultindcatortext = {
 		'vapevoidware.xyz',
-		'voidware is just better',
-		'voidware > render',
-		'discord.gg/voidware',
+		'atomware is just better',
+		'atomware > render',
+		'discord.gg/atomware',
 		'pro'
 	}
 	local indicatorFunction = function(self, instance, ...)
@@ -8502,9 +8502,9 @@ run(function()
                                             end
                                         end)
                                     )
-                                elseif VoidwareFunctions and VoidwareFunctions.Controllers then
+                                elseif AtomWareFunctions and AtomWareFunctions.Controllers then
                                     table.insert(DamageHighlightSystemConnections,
-                                        VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h, s, v)
+                                        AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h, s, v)
                                             if DamageHighlightSystem.Enabled then
                                                 DamageHighlightSystemConfig.GUISyncColor = {Hue = h, Sat = s, Val = v}
                                                 HighlightUtils.applyHighlightStyle(highlight)
@@ -8753,7 +8753,7 @@ run(function()
         InfoNotification("StaffDetector", #detectedStaff .. " staff members detected online/in-game!", 7)
     end
 
-    StaffDetectionSystem = GuiLibrary.ObjectsThatCanBeSaved.VoidwareWindow.Api.CreateOptionsButton({
+    StaffDetectionSystem = GuiLibrary.ObjectsThatCanBeSaved.AtomWareWindow.Api.CreateOptionsButton({
         Name = 'StaffFetcher - Roblox',
         Function = function(enabled)
             StaffDetectionSystem.Enabled = enabled
@@ -9423,8 +9423,8 @@ run(function()
                                             IndicatorUtils.applyColor(label)
                                         end
                                     end))
-                                elseif VoidwareFunctions and VoidwareFunctions.Controllers then
-                                    table.insert(DamageIndicatorSystemConnections, VoidwareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h, s, v)
+                                elseif AtomWareFunctions and AtomWareFunctions.Controllers then
+                                    table.insert(DamageIndicatorSystemConnections, AtomWareFunctions.Controllers:get("UpdateUI").UIUpdate.Event:Connect(function(h, s, v)
                                         if DamageIndicatorSystem.Enabled then
                                             IndicatorUtils.applyColor(label)
                                         end

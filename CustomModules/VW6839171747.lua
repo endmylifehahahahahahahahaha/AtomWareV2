@@ -1,4 +1,4 @@
---- Auto made file for 6839171747
+﻿--- Auto made file for 6839171747
 --- doors game
 local GuiLibrary = shared.GuiLibrary
 local vapeConnections = {}
@@ -17,7 +17,7 @@ task.spawn(function()
         local dir = 'mspaint/doors/settings'
         writefile(dir.."/autoload.txt", "pro")
         local suc, data = pcall(function()
-            return game:HttpGet("https://raw.githubusercontent.com/Erchobg/VoidwareProfiles/main/mspaint/doors/settings/pro.json", true)
+            return game:HttpGet("https://raw.githubusercontent.com/Erchobg/AtomWareProfiles/main/mspaint/doors/settings/pro.json", true)
         end)
         if suc then
             writefile(dir.."/pro.json", data)
@@ -35,7 +35,7 @@ task.spawn(function()
     }
     local function InfoNotification2(title, text, delay, button_table)
         local suc, res = pcall(function()
-            local frame = GuiLibrary.CreateInteractableNotification(title or "Voidware", text or "Successfully called function", delay or 7, "assets/InfoNotification.png", button_table)
+            local frame = GuiLibrary.CreateInteractableNotification(title or "AtomWare", text or "Successfully called function", delay or 7, "assets/InfoNotification.png", button_table)
             return frame
         end)
         return (suc and res)
@@ -46,9 +46,9 @@ task.spawn(function()
     end
     local data = load()
     if (not data.Data1) then
-        errorNotification("Voidware x mspaint - Doors", "Failure loading mspaint! Error: "..tostring(data.Data2), 7)
+        errorNotification("AtomWare x mspaint - Doors", "Failure loading mspaint! Error: "..tostring(data.Data2), 7)
     end
-    InfoNotification2("Voidware x mspaint - Doors", "The core script has just loaded! Would you like to uninject vw?", 10000000, interactable_buttons_table)
+    InfoNotification2("AtomWare x mspaint - Doors", "The core script has just loaded! Would you like to uninject vw?", 10000000, interactable_buttons_table)
 end)
 run(function()
     local Highlight_CoreConnections = {}
@@ -247,7 +247,7 @@ run(function()
                                                         for i,v in pairs(room50_key) do
                                                             real_code = real_code..v.Number
                                                         end
-                                                        warningNotification("Voidware", "The code for the padlock is "..real_code, 7)
+                                                        warningNotification("AtomWare", "The code for the padlock is "..real_code, 7)
                                                     end
                                                 end
                                             end
@@ -408,7 +408,7 @@ run(function()
             return true
         end
         if canProceed() then
-            warningNotification("Voidware", msg, 5)
+            warningNotification("AtomWare", msg, 5)
         end
     end
     local oldTable = {}
@@ -516,27 +516,27 @@ run(function()
                     local function check_child(v2, deleted)
                         if v2.Name == "RushMoving" and v2.ClassName == "Model" then
                             if deleted then
-                                errorNotification("Voidware", "Rush has despawned!", 5)
+                                errorNotification("AtomWare", "Rush has despawned!", 5)
                             else
-                                errorNotification("Voidware", "Rush has spawned!", 5)
+                                errorNotification("AtomWare", "Rush has spawned!", 5)
                             end
                         elseif string.find(string.lower(v2.Name), "ambush") then 
                             if deleted then
-                                errorNotification("Voidware", "Ambush has despawned!", 5)
+                                errorNotification("AtomWare", "Ambush has despawned!", 5)
                             else
-                                errorNotification("Voidware", "Ambush has spawned!", 5)
+                                errorNotification("AtomWare", "Ambush has spawned!", 5)
                             end
                         elseif v2.Name == "Eyes" and v2:FindFirstChild("Core") then
                             if deleted then
-                                errorNotification("Voidware", "Eyes has despawned!", 5)
+                                errorNotification("AtomWare", "Eyes has despawned!", 5)
                             else
-                                errorNotification("Voidware", "Eyes has spawned!", 5)
+                                errorNotification("AtomWare", "Eyes has spawned!", 5)
                             end
                         elseif v2.Name == "Screech" and v2.ClassName == "Model" then
                             if deleted then
-                                errorNotification("Voidware", "Screech has despawned!", 5)
+                                errorNotification("AtomWare", "Screech has despawned!", 5)
                             else
-                                errorNotification("Voidware", "Screech has spawned!", 5)
+                                errorNotification("AtomWare", "Screech has spawned!", 5)
                             end
                         end
                     end
@@ -685,7 +685,7 @@ end--]]
                                     if v:GetAttribute("RequiresKey") then
                                         local msg = "Locked room detected! Room "..v.Name
                                         if (not has_already_notified(msg)) then
-                                            warningNotification("Voidware", msg, 5)
+                                            warningNotification("AtomWare", msg, 5)
                                             table.insert(Notifications_Table, {
                                                 Text = msg,
                                                 Time = os.time(),
@@ -870,7 +870,7 @@ end)--]] -- old autoloot
                                                 end
                                                 local msg = "Set the interaction time to instant for the locked door in room "..v.Name.."!"
                                                 if (not has_already_notified(msg)) then
-                                                    warningNotification("Voidware", msg, 5)
+                                                    warningNotification("AtomWare", msg, 5)
                                                     table.insert(Notifications_Table, {
                                                         Text = msg,
                                                         Time = os.time(),
@@ -1135,7 +1135,7 @@ end)--]] -- old highlight v2
         for i,v in pairs(Notifications_Table) do
             if v.Object == obj then return end
         end
-        warningNotification("Voidware", msg, 5)
+        warningNotification("AtomWare", msg, 5)
         table.insert(Notifications_Table, {Object = obj, Message = msg, Time = os.time()})
     end
     EntityNotify = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({

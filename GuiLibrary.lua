@@ -1,4 +1,4 @@
-if shared.VapeExecuted then
+﻿if shared.VapeExecuted then
 	local VERSION = "4.10"..(shared.VapePrivate and " PRIVATE" or "").." "..readfile("vape/commithash.txt"):sub(1, 6)
 	local baseDirectory = (shared.VapePrivate and "vapeprivate/" or "vape/")
 	local profilesDirectory = (shared.ClosetCheatMode and "ClosetProfiles/" or "Profiles/")
@@ -145,7 +145,7 @@ if shared.VapeExecuted then
 	local vapeCachedAssets = {}
 	local function vapeGithubRequest(scripturl)
 		if not isfile("vape/"..scripturl) then
-			local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/vapevoidware/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
+			local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
 			assert(suc, res)
 			assert(res ~= "404: Not Found", res)
 			if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
@@ -902,25 +902,25 @@ if shared.VapeExecuted then
 				if shared.VoidDev then
 					task.spawn(function()
 						repeat task.wait() until errorNotification ~= nil and type(errorNotification) == "function"
-						errorNotification("Voidware | "..tostring(S_Name), debug.traceback(tostring(err)), 10)
+						errorNotification("AtomWare | "..tostring(S_Name), debug.traceback(tostring(err)), 10)
 					end)
 				end
 				task.spawn(function()
 					repeat task.wait() until errorNotification ~= nil and type(errorNotification) == "function"
 					if S_Name ~= "Not Specified" then
 						if attemptedRestarts[S_Name] then 
-							errorNotification('Voidware | '..tostring(S_Name), "Restart failed!", 3)
-							errorNotification("Voidware | "..tostring(S_Name), "There was an error with this module. If you can please send the\n VW_Error_Log.json in your workspace to erchodev#0 or discord.gg/voidware", 10)
+							errorNotification('AtomWare | '..tostring(S_Name), "Restart failed!", 3)
+							errorNotification("AtomWare | "..tostring(S_Name), "There was an error with this module. If you can please send the\n VW_Error_Log.json in your workspace to erchodev#0 or discord.gg/atomware", 10)
 						else
 							if shared.VoidDev then
-								errorNotification('Voidware | '..tostring(S_Name), "There was an error with this module. Attempting restart...", 3)
+								errorNotification('AtomWare | '..tostring(S_Name), "There was an error with this module. Attempting restart...", 3)
 							end
 							attemptedRestarts[S_Name] = true
 							local suc2, err2 = pcall(function() func(false) end)
-							if suc2 then InfoNotification("Voidware | "..tostring(S_Name), "Restart successfull!", 3); end
+							if suc2 then InfoNotification("AtomWare | "..tostring(S_Name), "Restart successfull!", 3); end
 						end
 					else
-						errorNotification("Voidware | "..tostring(S_Name), "There was an error with this module. If you can please send the\n VW_Error_Log.json in your workspace to erchodev#0 or discord.gg/voidware", 10)
+						errorNotification("AtomWare | "..tostring(S_Name), "There was an error with this module. If you can please send the\n VW_Error_Log.json in your workspace to erchodev#0 or discord.gg/atomware", 10)
 					end
 				end)
 				local errorLog = {
@@ -1047,7 +1047,7 @@ if shared.VapeExecuted then
 		windowlogo1.TextScaled = true
 		windowlogo1.BackgroundTransparency = 1
 		windowlogo1.TextColor3 = Color3.new(255, 255, 255)
-		windowlogo1.Text = "VOIDWARE"
+		windowlogo1.Text = "ATOMWARE"
 		windowlogo1.Size = UDim2.new(0, 100, 0, 20)
 		windowlogo1.Position = UDim2.new(0, 11, 0, 12)
 		windowlogo1.TextStrokeTransparency = 0
@@ -4324,7 +4324,7 @@ if shared.VapeExecuted then
 					task.spawn(function()
 						repeat task.wait() until (shared.warningNotification or warningNotification)
 						local warningNotification = warningNotification or shared.warningNotification
-						warningNotification("VoidwareWL", "Access granted for "..((argstablemain["Name"] and tostring(argstablemain["Name"])) or "UnknownModule").."["..((argstablemain2["Name"] and tostring(argstablemain2["Name"])) or "Unknown").."Window]", 3)
+						warningNotification("AtomWareWL", "Access granted for "..((argstablemain["Name"] and tostring(argstablemain["Name"])) or "UnknownModule").."["..((argstablemain2["Name"] and tostring(argstablemain2["Name"])) or "Unknown").."Window]", 3)
 					end)
 				end
 			else allowed = true end

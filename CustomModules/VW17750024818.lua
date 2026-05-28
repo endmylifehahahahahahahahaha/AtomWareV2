@@ -1,19 +1,19 @@
-repeat task.wait() until game:IsLoaded()
+﻿repeat task.wait() until game:IsLoaded()
 repeat task.wait() until warningNotification
-warningNotification("Voidware - Bedwarz", "Patched", 10)
+warningNotification("AtomWare - Bedwarz", "Patched", 10)
 return false
 task.spawn(function()
     repeat task.wait() until warningNotification
-    warningNotification("Voidware - Bedwarz", "Credits go to lwclowny#0 on discord!", 10)
+    warningNotification("AtomWare - Bedwarz", "Credits go to lwclowny#0 on discord!", 10)
     task.wait(1.5)
-    warningNotification("Voidware - Bedwarz", "Warning! Some or all modules are currently patched :( sorry", 10)
+    warningNotification("AtomWare - Bedwarz", "Warning! Some or all modules are currently patched :( sorry", 10)
 end) --- eee sk1dded#0 moment
 -- Initialize Orion Library
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()  -- Ensure you have the correct URL for OrionLib
 
 -- Create the window
 local Window = OrionLib:MakeWindow({
-    Name = "Voidware x Bedwarz - made by lwclowny#0 :D",
+    Name = "AtomWare x Bedwarz - made by lwclowny#0 :D",
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "OrionTest"

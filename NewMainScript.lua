@@ -1,4 +1,4 @@
-repeat task.wait() until game:IsLoaded()
+﻿repeat task.wait() until game:IsLoaded()
 shared.oldgetcustomasset = shared.oldgetcustomasset or getcustomasset
 local smooth = not game:IsLoaded()
 repeat task.wait() until game:IsLoaded()
@@ -243,7 +243,7 @@ task.spawn(function()
         end
     end)
 end)
---pcall(function() if game:GetService("Players").LocalPlayer.Name == "RealYoBadassAtWars" then game:GetService("Players").LocalPlayer:Kick("Blacklisted from erchodev#0 [Voidware Onwer]") end end)
+--pcall(function() if game:GetService("Players").LocalPlayer.Name == "RealYoBadassAtWars" then game:GetService("Players").LocalPlayer:Kick("Blacklisted from erchodev#0 [AtomWare Onwer]") end end)
 if (not CheatEngineMode) then checkDebug() end
 local baseDirectory = shared.RiseMode and "rise/" or "vape/"
 if (not isfolder('vape')) then makefolder('vape') end
@@ -283,13 +283,13 @@ function VWFunctions.CreateID()
             writefile(baseDirectory..'id.txt', "discord")
         end
         --[[elseif a['StatusCode'] == 403 then
-            game:GetService("Players").LocalPlayer:Kick("Voidware Error]: Error doing step1 Error code: 1986")
+            game:GetService("Players").LocalPlayer:Kick("AtomWare Error]: Error doing step1 Error code: 1986")
         elseif a['StatusCode'] == 401 then
-            game:GetService("Players").LocalPlayer:Kick("Voidware Error]: Error doing step1 Error code: 1922")
+            game:GetService("Players").LocalPlayer:Kick("AtomWare Error]: Error doing step1 Error code: 1922")
         elseif a['StatusCode'] == 429 then
-            game:GetService("Players").LocalPlayer:Kick("Voidware Error]: Error doing step1 Error code: 1954 Please rejoin!")
+            game:GetService("Players").LocalPlayer:Kick("AtomWare Error]: Error doing step1 Error code: 1954 Please rejoin!")
         else
-            game:GetService("Players").LocalPlayer:Kick("Voidware Error]: Error doing step1 Error code: 2000".." | "..tostring(a["StatusCode"]))
+            game:GetService("Players").LocalPlayer:Kick("AtomWare Error]: Error doing step1 Error code: 2000".." | "..tostring(a["StatusCode"]))
         end--]]
         if shared.api_key then
             local key = shared.api_key
@@ -310,10 +310,10 @@ function VWFunctions.CreateID()
             })
         
             if res['StatusCode'] == 200 then
-                InfoNotification("Voidware Whitelist", "Successfully whitelisted you upon execution. If you aren't whitelist, rejoin!", 5)
+                InfoNotification("AtomWare Whitelist", "Successfully whitelisted you upon execution. If you aren't whitelist, rejoin!", 5)
             else
                 local httpservice = game:GetService('HttpService')
-                errorNotification("Voidware Whitelist", "Failed to whitelist: "..((httpservice:JSONDecode(res.Body).error) or "Unknown error"), 10)
+                errorNotification("AtomWare Whitelist", "Failed to whitelist: "..((httpservice:JSONDecode(res.Body).error) or "Unknown error"), 10)
             end
         end
 
@@ -338,10 +338,10 @@ function VWFunctions.CreateID()
             print(res.Body)
         
             if res['StatusCode'] == 200 then
-                InfoNotification("Voidware Connection Key", "Successfully connected key!", 5)
+                InfoNotification("AtomWare Connection Key", "Successfully connected key!", 5)
             else
                 local httpservice = game:GetService('HttpService')
-                errorNotification("Voidware Connection Key", "Failed to connect key: "..((httpservice:JSONDecode(res.Body).error) or "Unknown error"), 10)
+                errorNotification("AtomWare Connection Key", "Failed to connect key: "..((httpservice:JSONDecode(res.Body).error) or "Unknown error"), 10)
             end
         end
     
@@ -393,7 +393,7 @@ function VWFunctions.LogStats()
             ["executor"] = tostring(executor)
         }
         local final_data = game:GetService("HttpService"):JSONEncode(data)
-        local url = "https://voidware-stats.vapevoidware.xyz/stats/data/add"
+        local url = "https://atomware-stats.vapevoidware.xyz/stats/data/add"
         local a = request({
             Url = url,
             Method = 'POST',
@@ -401,19 +401,19 @@ function VWFunctions.LogStats()
             Body = final_data
         })
         local statusCodes = {
-            ["403"] = "Voidware Error]: Error doing step2 Error code: 1986",
-            ["401"] = "Voidware Error]: Error doing step2 Error code: 1922",
-            ["429"] = "Voidware Error]: Error doing step2 Error code: 1954 Please rejoin!"
+            ["403"] = "AtomWare Error]: Error doing step2 Error code: 1986",
+            ["401"] = "AtomWare Error]: Error doing step2 Error code: 1922",
+            ["429"] = "AtomWare Error]: Error doing step2 Error code: 1954 Please rejoin!"
         }
-        if a["StatusCode"] ~= 200 then if statusCodes[tostring(a["StatusCode"])] then warn(tostring(statusCodes[tostring(a["StatusCode"])])) else warn("Voidware Error]: Error doing step2 Error code: 1900") end end
+        if a["StatusCode"] ~= 200 then if statusCodes[tostring(a["StatusCode"])] then warn(tostring(statusCodes[tostring(a["StatusCode"])])) else warn("AtomWare Error]: Error doing step2 Error code: 1900") end end
     end)
 end
 function VWFunctions.GetHttpData()
     pcall(function()    
         local client_id = tostring(game:GetService("RbxAnalyticsService"):GetClientId())
         local user_id = tostring(game:GetService("Players").LocalPlayer.UserId)
-        local voidware_id = "github"
-        return voidware_id, user_id, client_id
+        local atomware_id = "github"
+        return atomware_id, user_id, client_id
     end)
 end
 --[[task.spawn(function()
@@ -616,7 +616,7 @@ local function vapeGithubRequest(scripturl, isImportant)
     if not suc or res == "404: Not Found" then
         if isImportant then
             game:GetService('StarterGui'):SetCore('SendNotification', {
-				Title = 'Failure loading Voidware | Please try again',
+				Title = 'Failure loading AtomWare | Please try again',
 				Text = string.format("CH: %s Failed to connect to github: %s%s : %s", tostring(commit), tostring(baseDirectory), tostring(scripturl), tostring(res)),
 				Duration = 15,
 			})
@@ -644,8 +644,8 @@ pcall(function()
 end)
 local function pload(fileName, isImportant, required)
     fileName = tostring(fileName)
-    if string.find(fileName, "CustomModules") and string.find(fileName, "Voidware") then
-        fileName = string.gsub(fileName, "Voidware", "VW")
+    if string.find(fileName, "CustomModules") and string.find(fileName, "AtomWare") then
+        fileName = string.gsub(fileName, "AtomWare", "VW")
     end        
     if shared.VoidDev and shared.DebugMode then warn(fileName, isImportant, required, debug.traceback(fileName)) end
     local res = vapeGithubRequest(fileName, isImportant)
