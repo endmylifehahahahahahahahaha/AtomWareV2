@@ -1,4 +1,4 @@
-﻿repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game:IsLoaded()
 shared.oldgetcustomasset = shared.oldgetcustomasset or getcustomasset
 local smooth = not game:IsLoaded()
 repeat task.wait() until game:IsLoaded()
@@ -517,7 +517,7 @@ local function are_installed_2()
 end
 if not are_installed_1() then install_profiles(1) end
 if not are_installed_2() then install_profiles(2) end
-local url = shared.RiseMode and "https://github.com/VapeVoidware/VWRise/" or "https://github.com/wante-dev/AtomWareV2"
+local url = shared.RiseMode and "https://github.com/VapeVoidware/VWRise/" or "https://github.com/endmylifehahahahahahahahaha/AtomWareV2"
 pcall(function()
     if not shared.VapeDeveloper then 
         local commit = "main"
@@ -590,7 +590,7 @@ pcall(function()
         end
     end
 end)
-local url = shared.RiseMode and "https://github.com/VapeVoidware/VWRise/" or "https://github.com/wante-dev/AtomWareV2"
+local url = shared.RiseMode and "https://github.com/VapeVoidware/VWRise/" or "https://github.com/endmylifehahahahahahahahaha/AtomWareV2"
 local commit = "main"
 writefile(baseDirectory.."commithash2.txt", commit)
 shared.RiseMode = false
@@ -611,7 +611,7 @@ local function vapeGithubRequest(scripturl, isImportant)
         end
     end
     local suc, res
-    local url = (scripturl == "MainScript.lua" or scripturl == "GuiLibrary.lua") and shared.RiseMode and "https://raw.githubusercontent.com/VapeVoidware/VWRise/" or "https://raw.githubusercontent.com/wante-dev/AtomWareV2/"
+    local url = (scripturl == "MainScript.lua" or scripturl == "GuiLibrary.lua") and shared.RiseMode and "https://raw.githubusercontent.com/VapeVoidware/VWRise/" or "https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/"
     suc, res = pcall(function() return game:HttpGet(url..commit.."/"..scripturl, true) end)
     if not suc or res == "404: Not Found" then
         if isImportant then

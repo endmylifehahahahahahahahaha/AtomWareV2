@@ -1,9 +1,9 @@
-﻿# AtomWareV2
+# AtomWareV2
 
 A fork of VoidwareBakup.
 
 ## Usage
 
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/wante-dev/AtomWareV2/main/NewMainScript.lua", true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/main/NewMainScript.lua", true))()
 ```
