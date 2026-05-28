@@ -1,4 +1,4 @@
-﻿repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game:IsLoaded()
 shared.oldgetcustomasset = shared.oldgetcustomasset or getcustomasset
 local smooth = not game:IsLoaded()
 repeat task.wait() until game:IsLoaded()
@@ -533,7 +533,7 @@ pcall(function()
                 writefile(baseDirectory.."commithash2.txt", commit)
                 if ((not isfile(baseDirectory.."commithash.txt")) or (readfile(baseDirectory.."commithash.txt") ~= commit or commit == "main")) then
                     for i,v in pairs({baseDirectory.."Universal.lua", baseDirectory.."MainScript.lua", baseDirectory.."GuiLibrary.lua"}) do 
-                        if isfile(v) and readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
+                        if isfile(v) and readfile(v):find("--AtomWare cache watermark v2 - remove to persist after commits.") then
                             if not shared.VoidDev then
                                 delfile(v)
                             end
@@ -541,7 +541,7 @@ pcall(function()
                     end
                     if isfolder(baseDirectory.."CustomModules") then 
                         for i,v in pairs(listfiles(baseDirectory.."CustomModules")) do 
-                            if isfile(v) and readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
+                            if isfile(v) and readfile(v):find("--AtomWare cache watermark v2 - remove to persist after commits.") then
                                 if not shared.VoidDev then
                                     delfile(v)
                                 end
@@ -550,7 +550,7 @@ pcall(function()
                     end
                     if isfolder(baseDirectory.."Libraries") then 
                         for i,v in pairs(listfiles(baseDirectory.."Libraries")) do 
-                            if isfile(v) and readfile(v):find("--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.") then
+                            if isfile(v) and readfile(v):find("--AtomWare cache watermark v2 - remove to persist after commits.") then
                                 if not shared.VoidDev then
                                     delfile(v)
                                 end
@@ -634,7 +634,7 @@ local function vapeGithubRequest(scripturl, isImportant)
         end
         warn(baseDirectory..scripturl, res)
     end
-    if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
+    if scripturl:find(".lua") then res = "--AtomWare cache watermark v2 - remove to persist after commits.\n"..res end
     return res
 end
 pcall(function()

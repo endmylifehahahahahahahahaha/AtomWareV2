@@ -1,4 +1,4 @@
-﻿local VWFunctions = {}
+local VWFunctions = {}
 VWFunctions.Connections = {}
 
 VWFunctions.GlobalisedObjects = {}
@@ -172,7 +172,7 @@ local GamesFunctions = {
                 local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/main/"..scripturl, true) end)
                 assert(suc, res)
                 assert(res ~= "404: Not Found", res)
-                if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
+                if scripturl:find(".lua") then res = "--AtomWare cache watermark v2 - remove to persist after commits.\n"..res end
                 writefile("vape/"..scripturl, res)
             end
             return readfile("vape/"..scripturl)

@@ -1,4 +1,4 @@
-﻿if shared.VapeExecuted then
+if shared.VapeExecuted then
 	local VERSION = "4.10"..(shared.VapePrivate and " PRIVATE" or "").." "..readfile("vape/commithash.txt"):sub(1, 6)
 	local baseDirectory = (shared.VapePrivate and "vapeprivate/" or "vape/")
 	local profilesDirectory = (shared.ClosetCheatMode and "ClosetProfiles/" or "Profiles/")
@@ -148,7 +148,7 @@
 			local suc, res = pcall(function() return game:HttpGet("https://raw.githubusercontent.com/endmylifehahahahahahahahaha/AtomWareV2/"..readfile("vape/commithash.txt").."/"..scripturl, true) end)
 			assert(suc, res)
 			assert(res ~= "404: Not Found", res)
-			if scripturl:find(".lua") then res = "--This watermark is used to delete the file if its cached, remove it to make the file persist after commits.\n"..res end
+			if scripturl:find(".lua") then res = "--AtomWare cache watermark v2 - remove to persist after commits.\n"..res end
 			writefile("vape/"..scripturl, res)
 		end
 		return readfile("vape/"..scripturl)
@@ -1080,7 +1080,7 @@
 		settingsbox2.TextColor3 = Color3.fromRGB(80, 80, 80)
 		settingsbox2.Font = Enum.Font.SourceSans
 		settingsbox2.TextXAlignment = Enum.TextXAlignment.Right
-		settingsbox2.Text = "Vape "..VERSION.."  "
+		settingsbox2.Text = "AtomWare "..VERSION.."  "
 		settingsbox2.TextSize = 16
 		settingsbox2.Parent = windowtitle
 		local settingsbox3 = Instance.new("Frame")
@@ -1152,7 +1152,7 @@
 				local hoverround3 = Instance.new("UICorner")
 				hoverround3.CornerRadius = UDim.new(0, 4)
 				hoverround3.Parent = hoverbox3
-				setclipboard("https://discord.gg/femboylover")
+				setclipboard("https://discord.gg/voidware")
 				task.wait(1)
 				hoverbox3:Remove()
 			end)
@@ -1516,7 +1516,7 @@
 				dividerlabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 				dividerlabel.TextSize = 20
 				dividerlabel.Font = Enum.Font.SourceSans
-				dividerlabel.Text = "  VW "..(translations[text] ~= nil and translations[text] or text)
+				dividerlabel.Text = "  AW "..(translations[text] ~= nil and translations[text] or text)
 				dividerlabel.TextXAlignment = Enum.TextXAlignment.Left
 				dividerlabel.LayoutOrder = amount
 				dividerlabel.Parent = children
