@@ -436,7 +436,7 @@ local function install_profiles(num)
     local httpservice = game:GetService('HttpService')
     local guiprofiles = {}
     local profilesfetched
-    local repoOwner = shared.RiseMode and "VapeVoidware/RiseProfiles" or "Erchobg/VoidwareProfiles"
+    local repoOwner = shared.RiseMode and "VapeVoidware/RiseProfiles" or "endmylifehahahahahahahahaha/AtomWareV2"
     local function vapeGithubRequest(scripturl)
         if not isfile(baseDirectory..scripturl) then
             local suc, res = pcall(function() return game:HttpGet('https://raw.githubusercontent.com/'..repoOwner..'/main/'..scripturl, true) end)
@@ -485,7 +485,7 @@ local function install_profiles(num)
         if num == 1 then
             res1 = "https://api.github.com/repos/"..repoOwner.."/contents/Profiles"
         elseif num == 2 then
-            res1 = "https://api.github.com/repos/Erchobg/VoidwareProfiles/contents/ClosetProfiles"
+            res1 = "https://api.github.com/repos/endmylifehahahahahahahahaha/AtomWareV2/contents/ClosetProfiles"
         end
         res = game:HttpGet(res1, true)
         if res ~= '404: Not Found' then 
@@ -569,7 +569,7 @@ pcall(function()
     end
     if not shared.VapeDeveloper then 
         local commit = "main"
-        for i,v in pairs(game:HttpGet("https://github.com/VapeVoidware/vapevoidware"):split("\n")) do 
+        for i,v in pairs(game:HttpGet("https://github.com/endmylifehahahahahahahahaha/AtomWareV2"):split("\n")) do 
             if v:find("commit") and v:find("fragment") then 
                 local str = v:split("/")[5]
                 commit = str:sub(0, str:find('"') - 1)
