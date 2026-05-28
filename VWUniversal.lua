@@ -3860,6 +3860,7 @@ run(function()
 	for i,v in pairs(Config) do
 		StreamerMode.CreateTextBox({
 			Name = tostring(i),
+                        TempText = tostring(v),
 			Default = v,
 			Function = function(val)
 				Config[i] = tostring(val)
