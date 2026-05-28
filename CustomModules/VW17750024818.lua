@@ -1,4 +1,4 @@
-﻿repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game:IsLoaded()
 repeat task.wait() until warningNotification
 warningNotification("AtomWare - Bedwarz", "Patched", 10)
 return false

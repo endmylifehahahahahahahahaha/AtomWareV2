@@ -1,4 +1,4 @@
-﻿# AtomWareV2
+# AtomWareV2
 
 A fork of AtomWareBakup.
 

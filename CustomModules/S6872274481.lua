@@ -1,4 +1,4 @@
-﻿repeat task.wait() until game:IsLoaded()
+repeat task.wait() until game:IsLoaded()
 
 local GuiLibrary = shared.GuiLibrary
 local playersService = game:GetService("Players")

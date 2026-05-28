@@ -1,4 +1,4 @@
-﻿warn("Big games - my restaurant")
+warn("Big games - my restaurant")
 local GuiLibrary = shared.GuiLibrary
 task.spawn(function()
     local isNew = false

@@ -1,4 +1,4 @@
-﻿--[[
+--[[
 	Credits
 	Infinite Yield - Blink
 	Please notify me if you need credits

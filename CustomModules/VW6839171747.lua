@@ -1,4 +1,4 @@
-﻿--- Auto made file for 6839171747
+--- Auto made file for 6839171747
 --- doors game
 local GuiLibrary = shared.GuiLibrary
 local vapeConnections = {}

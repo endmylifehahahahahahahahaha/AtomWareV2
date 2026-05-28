@@ -1,4 +1,4 @@
-﻿local VData = {}
+local VData = {}
 
 local Api_Url = "https://whitelist.vapevoidware.xyz/GlobalFunctions.json"
 
