@@ -11634,7 +11634,7 @@ run(function()
                                 if Color and Color.Enabled then
                                     v.TextColor3 = randomizer(RGBColors) or v.TextColor3
                                 end
-                                pcall(function() v.FontFace = Font.fromName(font) end)
+                                pcall(function() v.Font = Enum.Font[font] or Enum.Font.Arial end)
                             end
                         end
                     end
@@ -11647,7 +11647,7 @@ run(function()
     Color = DamageAffect.CreateToggle({ Name = "Custom Colors", Default = true })
     Fonts = DamageAffect.CreateDropdown({
         Name = "Font",
-        List = {"Arial","GothamBold","Gotham","SourceSans","RobotoMono","Oswald","Nunito","Merriweather"},
+        List = {"Arial","GothamBold","Gotham","SourceSans","SourceSansBold","Code","Fantasy","Cartoon"},
         Function = function(val) font = val end
     })
 end)
@@ -12351,11 +12351,11 @@ run(function()
 
     local milestones = {5, 10, 15, 20, 25, 30, 50, 100}
     local milestoneMessages = {
-        [5]   = "5 Kill Streak! 🔥",
-        [10]  = "10 Kills! You're on fire! 🔥🔥",
+        [5]   = "5 Kill Streak! On fire!",
+        [10]  = "10 Kills! You're on fire!",
         [15]  = "15 Kills! Unstoppable!",
         [20]  = "20 Kills! GODLIKE!",
-        [25]  = "25 Kills! Catware diff 💀",
+        [25]  = "25 Kills! Catware diff lol",
         [30]  = "30 Kills! Actual menace",
         [50]  = "50 KILLS?! INSANE",
         [100] = "100 KILLS. You need help."
