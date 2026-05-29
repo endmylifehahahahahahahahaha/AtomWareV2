@@ -13556,3 +13556,978 @@ end
 
 store = createMonitoredTable(store, onChange)
 bedwars = createMonitoredTable(bedwars, onChange2)
+
+
+-- ============================================================
+-- CUSTOM FEATURES (from customfeatures.md)
+-- ============================================================
+
+-- Legit Auto Farm
+run(function()
+    local AutoFarm
+    local runcheck = false
+
+    local function getSwordItem()
+        local state = bedwars.Store and bedwars.Store:getState()
+        local inventory = state
+            and state.Inventory
+            and state.Inventory.observedInventory
+            and state.Inventory.observedInventory.inventory
+            and state.Inventory.observedInventory.inventory.items
+        if not inventory then return nil end
+        for _, item in pairs(inventory) do
+            if item.itemType and string.find(item.itemType, "sword") then
+                return item.itemType
+            end
+        end
+        return nil
+    end
+
+    local queupath = nil
+    local queueArgs = {[1] = {["queueType"] = "bedwarsto1"}}
+    pcall(function()
+        local ev = game:GetService("ReplicatedStorage")
+            :WaitForChild("events-@easy-games/lobby:shared/event/lobby-events@getEvents.Events", 5)
+        if ev then queupath = ev:FindFirstChild("joinQueue") end
+    end)
+
+    AutoFarm = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+        Name = "LegitAutoFarm",
+        Function = function(callback)
+            if callback then
+                runcheck = true
+                task.spawn(function()
+                    while runcheck and AutoFarm.Enabled do
+                        pcall(function()
+                            local matchstats = store.matchState
+                            if matchstats == 1 then
+                                local sword = getSwordItem()
+                                if sword then
+                                    switchItem(sword, 0.1)
+                                    bedwars.SwordController:swingSwordAtMouse()
+                                end
+                            end
+                            if matchstats == 3 and queupath then
+                                queupath:FireServer(unpack(queueArgs))
+                            end
+                        end)
+                        task.wait(1)
+                    end
+                end)
+            else
+                runcheck = false
+            end
+        end,
+        HoverText = "AFK farm levels - auto swings sword in match, auto requeues after"
+    })
+end)
+
+-- Water Ambient
+run(function()
+    local WaterAmbient
+    local WaterColor = {Hue = 0.58, Sat = 0.7, Val = 0.9}
+    local waterY = 0
+
+    local function findLowestBlock()
+        local lowest = 99999
+        local params = RaycastParams.new()
+        params.FilterType = Enum.RaycastFilterType.Exclude
+        local char = lplr.Character
+        params.FilterDescendantsInstances = char and {char, workspace.CurrentCamera} or {workspace.CurrentCamera}
+        for _, v in pairs(collectionService:GetTagged('block')) do
+            if v and v.Position then
+                local ray = workspace:Raycast(v.Position + Vector3.new(0, 800, 0), Vector3.new(0, -1000, 0), params)
+                if ray and ray.Position.Y < lowest then lowest = ray.Position.Y end
+            end
+        end
+        if lowest == 99999 then
+            if entityLibrary.isAlive and entityLibrary.character and entityLibrary.character.HumanoidRootPart then
+                local pos = entityLibrary.character.HumanoidRootPart.Position
+                local ray = workspace:Raycast(pos, Vector3.new(0, -1000, 0), params)
+                if ray then return ray.Position.Y - 7 end
+            end
+            return -20
+        end
+        return math.max(lowest - 7, -20)
+    end
+
+    WaterAmbient = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+        Name = "WaterAmbient",
+        Function = function(callback)
+            local terrain = workspace:FindFirstChildOfClass('Terrain')
+            if not terrain then return end
+            if callback then
+                waterY = findLowestBlock()
+                terrain:FillBlock(CFrame.new(0, waterY, 0), Vector3.new(5000, 0.01, 5000), Enum.Material.Water)
+                terrain.WaterColor = Color3.fromHSV(WaterColor.Hue, WaterColor.Sat, WaterColor.Val)
+                terrain.WaterTransparency = 0.25
+                terrain.WaterReflectance = 0.7
+                terrain.WaterWaveSize = 0.13
+                terrain.WaterWaveSpeed = 8
+                if entityLibrary.isAlive and entityLibrary.character and entityLibrary.character.Humanoid then
+                    entityLibrary.character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+                end
+                table.insert(vapeConnections, lplr.CharacterAdded:Connect(function(char)
+                    local hum = char:WaitForChild("Humanoid", 5)
+                    if hum then hum:SetStateEnabled(Enum.HumanoidStateType.Swimming, false) end
+                end))
+            else
+                terrain:FillBlock(CFrame.new(0, waterY, 0), Vector3.new(5000, 0.01, 5000), Enum.Material.Air)
+                waterY = 0
+                if entityLibrary.isAlive and entityLibrary.character and entityLibrary.character.Humanoid then
+                    entityLibrary.character.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
+                end
+            end
+        end,
+        HoverText = "Fills the map with a decorative water layer"
+    })
+    WaterAmbient.CreateColorSlider({
+        Name = "Water Color",
+        Function = function(h, s, v)
+            WaterColor.Hue, WaterColor.Sat, WaterColor.Val = h, s, v
+            if WaterAmbient.Enabled then
+                local terrain = workspace:FindFirstChildOfClass('Terrain')
+                if terrain then terrain.WaterColor = Color3.fromHSV(h, s, v) end
+            end
+        end
+    })
+end)
+
+-- Damage Effects
+run(function()
+    local DamageAffect
+    local DamageColor
+    local DamageFont
+    local customMSG
+    local font = Enum.Font.Arial
+    local DamageMessages = {
+        'Pow!','Pop!','Hit!','Smack!','Bang!','Boom!','Whoop!','Damage!','-9e9!','Whack!',
+        'Crash!','Slam!','Zap!','Snap!','Thump!','Ouch!','Crack!','Bam!','Clap!','Blitz!',
+        'Crunch!','Shatter!','Blast!','Womp!','Thunk!','Catware on top ong :pray:',
+        'Volt exe on top','Rattle!','Kaboom!','Wack!','Boomer!','Slammer!','Powee!',
+        'Zappp!','Thunker!','Rippler!','Bap!','Bomp!','Sock!','Chop!','Sting!','Slice!',
+        'Swipe!','Punch!','Tonk!','Bonk!','Jolt!','Spike!','Pierce!','Crush!','Bruise!',
+        'Ding!','Clang!','Crashhh!','Kablam!','Catware paid fire','catware private omg wow'
+    }
+    local RGBColors = {
+        Color3.fromRGB(245, 69, 69), Color3.fromRGB(254, 105, 30),
+        Color3.fromRGB(255, 138, 5), Color3.fromRGB(255, 162, 3),
+        Color3.fromRGB(245, 189, 37)
+    }
+    local function randomizer(tbl)
+        if type(tbl) ~= "table" or #tbl == 0 then return nil end
+        return tbl[math.random(1, #tbl)]
+    end
+
+    DamageAffect = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "DamageAffects",
+        Function = function(call)
+            if call then
+                table.insert(vapeConnections, workspace.DescendantAdded:Connect(function(part)
+                    if part.Name == "DamageIndicatorPart" and part:IsA("BasePart") then
+                        for _, v in pairs(part:GetDescendants()) do
+                            if v:IsA("TextLabel") then
+                                if customMSG and customMSG.Enabled then
+                                    local txt = randomizer(DamageMessages)
+                                    if txt then v.Text = txt end
+                                end
+                                if DamageColor and DamageColor.Enabled then
+                                    local clr = randomizer(RGBColors)
+                                    if clr then v.TextColor3 = clr end
+                                end
+                                pcall(function() v.Font = font end)
+                            end
+                        end
+                    end
+                end))
+            end
+        end,
+        HoverText = "Customizes damage indicator text, colors, and font"
+    })
+    customMSG   = DamageAffect.CreateToggle({ Name = "Custom Messages", Default = true })
+    DamageColor = DamageAffect.CreateToggle({ Name = "Custom Colors",   Default = true })
+    DamageFont  = DamageAffect.CreateDropdown({
+        Name = "Font",
+        List = {"Arial","GothamBold","Gotham","SourceSans","SourceSansBold","Code","Fantasy","Cartoon"},
+        Function = function(val)
+            local ok, f = pcall(function() return Enum.Font[val] end)
+            font = (ok and f) or Enum.Font.Arial
+        end
+    })
+end)
+
+-- Clan Tag
+run(function()
+    local CustomTags
+    local TagColor = {Hue = 0, Sat = 1, Val = 1}
+    local TAG = {Value = "Catware"}
+    local old, old2
+    local tagRenderConn, tagGuiConn
+
+    local function Color3ToHex(r, g, b)
+        return string.lower(string.format("#%02X%02X%02X", r, g, b))
+    end
+
+    local function CompleteTagEffect()
+        if not lplr:FindFirstChild("Tags") then return end
+        local tagObj = lplr.Tags:FindFirstChild("0")
+        if not tagObj then return end
+        if not old then old = tagObj.Value end
+        if not old2 then old2 = tagObj:GetAttribute("Text") end
+        local color = Color3.fromHSV(TagColor.Hue, TagColor.Sat, TagColor.Val)
+        local R, G, B = math.floor(color.R*255), math.floor(color.G*255), math.floor(color.B*255)
+        tagObj.Value = string.format("<font color='rgb(%d,%d,%d)'>[%s]</font>", R, G, B, TAG.Value)
+        tagObj:SetAttribute("Text", TAG.Value)
+        lplr:SetAttribute("ClanTag", TAG.Value)
+        if tagRenderConn then tagRenderConn:Disconnect() tagRenderConn = nil end
+        if tagGuiConn then tagGuiConn:Disconnect() tagGuiConn = nil end
+        tagGuiConn = lplr.PlayerGui.ChildAdded:Connect(function(child)
+            if child.Name ~= "TabListScreenGui" or not child:IsA("ScreenGui") then return end
+            tagRenderConn = runService.RenderStepped:Connect(function()
+                local nameToFind = (lplr.DisplayName == "" or lplr.DisplayName == lplr.Name) and lplr.Name or lplr.DisplayName
+                for _, v in ipairs(child:GetDescendants()) do
+                    if v:IsA("TextLabel") and string.find(string.lower(v.Text), string.lower(nameToFind)) then
+                        v.Text = string.format('<font transparency="0.3" color="%s">[%s]</font> %s', Color3ToHex(R,G,B), TAG.Value, nameToFind)
+                    end
+                end
+            end)
+        end)
+    end
+
+    local function RemoveTagEffect()
+        if tagRenderConn then tagRenderConn:Disconnect() tagRenderConn = nil end
+        if tagGuiConn then tagGuiConn:Disconnect() tagGuiConn = nil end
+        if lplr:FindFirstChild("Tags") then
+            local tagObj = lplr.Tags:FindFirstChild("0")
+            if tagObj then
+                if old then tagObj.Value = old end
+                if old2 then tagObj:SetAttribute("Text", old2) end
+            end
+        end
+        if lplr:GetAttribute("ClanTag") then lplr:SetAttribute("ClanTag", old) end
+        old, old2 = nil, nil
+    end
+
+    CustomTags = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "CustomTags",
+        Function = function(callback)
+            if callback then CompleteTagEffect() else RemoveTagEffect() end
+        end,
+        HoverText = "Client-sided custom clan tag shown in chat tab list"
+    })
+    CustomTags.CreateColorSlider({
+        Name = "Color",
+        Function = function(h, s, v)
+            TagColor.Hue, TagColor.Sat, TagColor.Val = h, s, v
+            if CustomTags.Enabled then CompleteTagEffect() end
+        end
+    })
+    CustomTags.CreateTextBox({
+        Name = "Tag",
+        Default = "Catware",
+        Function = function(val)
+            TAG.Value = val
+            if CustomTags.Enabled then CompleteTagEffect() end
+        end
+    })
+end)
+
+-- Velocity++
+run(function()
+    local VelocityPlus
+    local VPMode = {Value = 'Random'}
+    local VPChance = {Value = 100}
+    local VPTargetCheck = {Enabled = false}
+    local rand = Random.new()
+    local oldVP = nil
+
+    local function rotateY(v, deg)
+        local r = math.rad(deg)
+        return Vector3.new(v.X*math.cos(r) - v.Z*math.sin(r), 0, v.X*math.sin(r) + v.Z*math.cos(r))
+    end
+
+    VelocityPlus = GuiLibrary.ObjectsThatCanBeSaved.CombatWindow.Api.CreateOptionsButton({
+        Name = "VelocityPlus",
+        Function = function(callback)
+            if callback then
+                oldVP = bedwars.KnockbackUtil.applyKnockback
+                bedwars.KnockbackUtil.applyKnockback = function(root, mass, dir, knockback, ...)
+                    if rand:NextNumber(0, 100) > VPChance.Value then return oldVP(root, mass, dir, knockback, ...) end
+                    if VPTargetCheck.Enabled and not EntityNearPosition(50) then
+                        return oldVP(root, mass, dir, knockback, ...)
+                    end
+                    local victimPos = root.Position
+                    local victimFlat = Vector3.new(victimPos.X, 0, victimPos.Z)
+                    local awayVec = victimFlat - Vector3.new(dir.X, 0, dir.Z)
+                    if awayVec.Magnitude < 0.001 then return oldVP(root, mass, dir, knockback, ...) end
+                    awayVec = awayVec.Unit
+                    local chosen = VPMode.Value
+                    if chosen == 'Random' then chosen = ({'Left','Right','Pull'})[rand:NextInteger(1,3)] end
+                    local desiredAway
+                    if chosen == 'Left' then desiredAway = rotateY(awayVec, 90)
+                    elseif chosen == 'Right' then desiredAway = rotateY(awayVec, -90)
+                    elseif chosen == 'Pull' then desiredAway = -awayVec
+                    else desiredAway = awayVec end
+                    local fakeAttacker = Vector3.new(victimPos.X - desiredAway.X*100, dir.Y, victimPos.Z - desiredAway.Z*100)
+                    return oldVP(root, mass, fakeAttacker, knockback, ...)
+                end
+            else
+                if oldVP then bedwars.KnockbackUtil.applyKnockback = oldVP oldVP = nil end
+            end
+        end,
+        HoverText = "Redirects knockback you receive in a chosen direction"
+    })
+    VelocityPlus.CreateDropdown({
+        Name = "Direction",
+        List = {'Left','Right','Pull','Random'},
+        Default = 'Random',
+        Function = function(val) VPMode.Value = val end
+    })
+    VelocityPlus.CreateSlider({ Name = "Chance", Min = 0, Max = 100, Default = 100, Function = function(val) VPChance.Value = val end })
+    VelocityPlus.CreateToggle({ Name = "Only when targeting", Function = function(val) VPTargetCheck.Enabled = val end })
+end)
+
+-- Visualizer
+run(function()
+    local Visualizer
+    local VisualizeServerPos = {Enabled = false}
+    local ShowTargetRange = {Enabled = false}
+    local ghostPart, ghostConn = nil, nil
+    local rangeCircles, rangeConn = {}, nil
+
+    local function buildGhost()
+        if ghostPart then return end
+        ghostPart = Instance.new('Part')
+        ghostPart.Name = 'ServerPositionGhost'
+        ghostPart.Anchored = true
+        ghostPart.CanCollide = false
+        ghostPart.CanQuery = false
+        ghostPart.CastShadow = false
+        ghostPart.Size = Vector3.new(2, 5, 2)
+        ghostPart.Material = Enum.Material.Neon
+        ghostPart.Color = Color3.fromRGB(0, 200, 255)
+        ghostPart.Transparency = 0.4
+        ghostPart.Parent = gameCamera
+        local billboard = Instance.new('BillboardGui')
+        billboard.Size = UDim2.new(0, 140, 0, 40)
+        billboard.StudsOffset = Vector3.new(0, 3.5, 0)
+        billboard.AlwaysOnTop = true
+        billboard.Parent = ghostPart
+        local label = Instance.new('TextLabel')
+        label.Size = UDim2.new(1, 0, 1, 0)
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.fromRGB(0, 200, 255)
+        label.TextStrokeTransparency = 0
+        label.TextScaled = true
+        label.Text = 'Server Pos'
+        label.Font = Enum.Font.GothamBold
+        label.Parent = billboard
+        local posHistory = {}
+        local DELAY_FRAMES = 6
+        ghostConn = runService.PostSimulation:Connect(function()
+            if not entityLibrary.isAlive or not ghostPart then return end
+            local rootPart = entityLibrary.character.HumanoidRootPart
+            if not rootPart then return end
+            table.insert(posHistory, rootPart.Position)
+            if #posHistory > DELAY_FRAMES then table.remove(posHistory, 1) end
+            local serverPos = posHistory[1] or rootPart.Position
+            ghostPart.Position = serverPos
+            label.Text = 'Server Pos\n'..math.round((rootPart.Position - serverPos).Magnitude * 100)/100 ..' studs'
+        end)
+        table.insert(vapeConnections, ghostConn)
+    end
+
+    local function destroyGhost()
+        if ghostConn then ghostConn:Disconnect() ghostConn = nil end
+        if ghostPart then ghostPart:Destroy() ghostPart = nil end
+    end
+
+    local function getEnemyReach(ent)
+        local inv = store.inventories[ent.Player]
+        if inv then
+            for _, item in pairs(inv.items or {}) do
+                local meta = bedwars.ItemTable[item.itemType]
+                if meta and meta.sword and meta.sword.attackRange then return meta.sword.attackRange end
+            end
+        end
+        return 14.4
+    end
+
+    local function buildRangeCircle(ent)
+        if rangeCircles[ent] then return end
+        local reach = getEnemyReach(ent)
+        local p = Instance.new('Part')
+        p.Anchored = true p.CanCollide = false p.CanQuery = false p.CastShadow = false
+        p.Shape = Enum.PartType.Cylinder
+        p.Size = Vector3.new(0.05, reach*2, reach*2)
+        p.Material = Enum.Material.Neon
+        p.Color = Color3.fromRGB(255, 60, 60)
+        p.Transparency = 0.55
+        p.Parent = gameCamera
+        local bb = Instance.new('BillboardGui')
+        bb.Size = UDim2.new(0, 120, 0, 30) bb.StudsOffset = Vector3.new(0, 4, 0) bb.AlwaysOnTop = true bb.Parent = p
+        local lbl = Instance.new('TextLabel')
+        lbl.Size = UDim2.new(1,0,1,0) lbl.BackgroundTransparency = 1
+        lbl.TextColor3 = Color3.fromRGB(255,60,60) lbl.TextStrokeTransparency = 0
+        lbl.TextScaled = true lbl.Font = Enum.Font.GothamBold lbl.Text = '' lbl.Parent = bb
+        rangeCircles[ent] = {part = p, label = lbl, reach = reach}
+    end
+
+    local function destroyRangeCircle(ent)
+        local data = rangeCircles[ent]
+        if data then data.part:Destroy() rangeCircles[ent] = nil end
+    end
+
+    local function buildRangeVisuals()
+        if rangeConn then return end
+        rangeConn = runService.PostSimulation:Connect(function()
+            if not entityLibrary.isAlive then return end
+            local myPos = entityLibrary.character.HumanoidRootPart.Position
+            local seen = {}
+            for _, ent in pairs(entityLibrary.entityList) do
+                if not ent.Targetable then continue end
+                if not ent.RootPart or not ent.RootPart.Parent then continue end
+                if (ent.RootPart.Position - myPos).Magnitude > 50 then destroyRangeCircle(ent) continue end
+                seen[ent] = true
+                buildRangeCircle(ent)
+                local data = rangeCircles[ent]
+                if not data then continue end
+                local reach = getEnemyReach(ent)
+                if reach ~= data.reach then data.part.Size = Vector3.new(0.05, reach*2, reach*2) data.reach = reach end
+                local entPos = ent.RootPart.Position
+                local footY = entPos.Y - (ent.HipHeight or 2.5)
+                data.part.CFrame = CFrame.new(Vector3.new(entPos.X, footY, entPos.Z)) * CFrame.Angles(0, 0, math.pi/2)
+                local dist = (myPos - entPos).Magnitude
+                local inRange = dist <= reach
+                local col = inRange and Color3.fromRGB(80,255,80) or Color3.fromRGB(255,60,60)
+                data.part.Color = col data.label.TextColor3 = col
+                data.label.Text = math.round(dist*10)/10 ..' / '..reach..' studs'
+            end
+            for ent in pairs(rangeCircles) do if not seen[ent] then destroyRangeCircle(ent) end end
+        end)
+        table.insert(vapeConnections, rangeConn)
+    end
+
+    local function destroyRangeVisuals()
+        if rangeConn then rangeConn:Disconnect() rangeConn = nil end
+        for ent in pairs(rangeCircles) do destroyRangeCircle(ent) end
+        table.clear(rangeCircles)
+    end
+
+    Visualizer = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+        Name = "Visualizer",
+        Function = function(callback)
+            if callback then
+                if VisualizeServerPos.Enabled then buildGhost() end
+                if ShowTargetRange.Enabled then buildRangeVisuals() end
+            else
+                destroyGhost()
+                destroyRangeVisuals()
+            end
+        end,
+        HoverText = "Debug visualization: server position ghost + enemy reach circles"
+    })
+    VisualizeServerPos = Visualizer.CreateToggle({
+        Name = "Visualize Server Position",
+        Function = function(callback) if callback then buildGhost() else destroyGhost() end end
+    })
+    ShowTargetRange = Visualizer.CreateToggle({
+        Name = "Show Target Range",
+        Function = function(callback) if callback then buildRangeVisuals() else destroyRangeVisuals() end end
+    })
+end)
+
+-- VelocityMore (Normal / Delayed / JumpReset)
+run(function()
+    local VelocityMore
+    local VMMode = {Value = 'Normal'}
+    local VMHorizontal = {Value = 0}
+    local VMVertical = {Value = 0}
+    local VMChance = {Value = 100}
+    local VMTargetCheck = {Enabled = false}
+    local VMAirDelayMin = {Value = 125}
+    local VMAirDelayMax = {Value = 175}
+    local VMGroundDelayMin = {Value = 250}
+    local VMGroundDelayMax = {Value = 500}
+    local rand2 = Random.new()
+    local oldVM = nil
+
+    local VMHorizontalObj, VMVerticalObj
+    local VMAirDelayMinObj, VMAirDelayMaxObj, VMGroundDelayMinObj, VMGroundDelayMaxObj
+
+    local function updateVisibility()
+        local mode = VMMode.Value
+        if VMHorizontalObj then VMHorizontalObj.Object.Visible = (mode == 'Normal') end
+        if VMVerticalObj then VMVerticalObj.Object.Visible = (mode == 'Normal') end
+        if VMAirDelayMinObj then VMAirDelayMinObj.Object.Visible = (mode == 'Delayed') end
+        if VMAirDelayMaxObj then VMAirDelayMaxObj.Object.Visible = (mode == 'Delayed') end
+        if VMGroundDelayMinObj then VMGroundDelayMinObj.Object.Visible = (mode == 'Delayed') end
+        if VMGroundDelayMaxObj then VMGroundDelayMaxObj.Object.Visible = (mode == 'Delayed') end
+    end
+
+    VelocityMore = GuiLibrary.ObjectsThatCanBeSaved.CombatWindow.Api.CreateOptionsButton({
+        Name = "VelocityMore",
+        Function = function(callback)
+            if callback then
+                local mode = VMMode.Value
+                if mode == 'Normal' then
+                    oldVM = bedwars.KnockbackUtil.applyKnockback
+                    bedwars.KnockbackUtil.applyKnockback = function(root, mass, dir, knockback, ...)
+                        if rand2:NextNumber(0,100) > VMChance.Value then return oldVM(root, mass, dir, knockback, ...) end
+                        if VMTargetCheck.Enabled and not EntityNearPosition(50) then return oldVM(root, mass, dir, knockback, ...) end
+                        knockback = knockback or {}
+                        if VMHorizontal.Value == 0 and VMVertical.Value == 0 then return end
+                        knockback.horizontal = (knockback.horizontal or 1) * (VMHorizontal.Value / 100)
+                        knockback.vertical   = (knockback.vertical   or 1) * (VMVertical.Value   / 100)
+                        return oldVM(root, mass, dir, knockback, ...)
+                    end
+                elseif mode == 'Delayed' then
+                    oldVM = bedwars.KnockbackUtil.applyKnockback
+                    bedwars.KnockbackUtil.applyKnockback = function(root, mass, dir, knockback, ...)
+                        if rand2:NextNumber(0,100) > VMChance.Value then return oldVM(root, mass, dir, knockback, ...) end
+                        if VMTargetCheck.Enabled and not EntityNearPosition(50) then return oldVM(root, mass, dir, knockback, ...) end
+                        local char = lplr.Character
+                        local onGround = char and char:FindFirstChild("Humanoid") and char.Humanoid.FloorMaterial ~= Enum.Material.Air
+                        local minMs = onGround and VMGroundDelayMin.Value or VMAirDelayMin.Value
+                        local maxMs = onGround and VMGroundDelayMax.Value or VMAirDelayMax.Value
+                        local delayMs = rand2:NextInteger(minMs, maxMs)
+                        local cRoot, cMass, cDir, cKB, cRest = root, mass, dir, knockback, {...}
+                        task.delay(delayMs/1000, function()
+                            if oldVM then oldVM(cRoot, cMass, cDir, cKB, table.unpack(cRest)) end
+                        end)
+                    end
+                elseif mode == 'JumpReset' then
+                    oldVM = bedwars.KnockbackUtil.applyKnockback
+                    bedwars.KnockbackUtil.applyKnockback = function(root, mass, dir, knockback, ...)
+                        if rand2:NextNumber(0,100) > VMChance.Value then return oldVM(root, mass, dir, knockback, ...) end
+                        if VMTargetCheck.Enabled and not EntityNearPosition(50) then return oldVM(root, mass, dir, knockback, ...) end
+                        local char = lplr.Character
+                        if entityLibrary.isAlive and char and root == char:FindFirstChild("HumanoidRootPart") then
+                            local hum = char:FindFirstChild("Humanoid")
+                            if hum and hum.FloorMaterial ~= Enum.Material.Air then hum.Jump = true end
+                        end
+                        return oldVM(root, mass, dir, knockback, ...)
+                    end
+                end
+            else
+                if oldVM then bedwars.KnockbackUtil.applyKnockback = oldVM oldVM = nil end
+            end
+        end,
+        HoverText = "Advanced velocity: Normal/Delayed/JumpReset modes"
+    })
+    VelocityMore.CreateDropdown({
+        Name = "Mode", List = {'Normal','Delayed','JumpReset'}, Default = 'Normal',
+        Function = function(val)
+            VMMode.Value = val
+            updateVisibility()
+            if VelocityMore.Enabled then VelocityMore.ToggleButton(false) VelocityMore.ToggleButton(true) end
+        end
+    })
+    VMHorizontalObj    = VelocityMore.CreateSlider({ Name = "Horizontal",       Min = 0, Max = 100,  Default = 0,   Function = function(v) VMHorizontal.Value = v end })
+    VMVerticalObj      = VelocityMore.CreateSlider({ Name = "Vertical",         Min = 0, Max = 100,  Default = 0,   Function = function(v) VMVertical.Value = v end })
+    VMAirDelayMinObj   = VelocityMore.CreateSlider({ Name = "Air Delay Min",    Min = 0, Max = 1000, Default = 125, Function = function(v) VMAirDelayMin.Value = v end })
+    VMAirDelayMaxObj   = VelocityMore.CreateSlider({ Name = "Air Delay Max",    Min = 0, Max = 1000, Default = 175, Function = function(v) VMAirDelayMax.Value = v end })
+    VMGroundDelayMinObj= VelocityMore.CreateSlider({ Name = "Ground Delay Min", Min = 0, Max = 1000, Default = 250, Function = function(v) VMGroundDelayMin.Value = v end })
+    VMGroundDelayMaxObj= VelocityMore.CreateSlider({ Name = "Ground Delay Max", Min = 0, Max = 1000, Default = 500, Function = function(v) VMGroundDelayMax.Value = v end })
+    VelocityMore.CreateSlider({ Name = "Chance", Min = 0, Max = 100, Default = 100, Function = function(v) VMChance.Value = v end })
+    VelocityMore.CreateToggle({ Name = "Only when targeting", Function = function(v) VMTargetCheck.Enabled = v end })
+    updateVisibility()
+end)
+
+-- AA++ (Advanced Aim Assist with Perspective + Enemy Priority)
+run(function()
+    local AimAssistPlus
+    local AAMode = {Value = 'Simple'}
+    local AACameraPerspective = {Value = 'Both'}
+    local AAEnemyPriority = {Value = 'None'}
+    local AAClickAim = {Enabled = true}
+    local AAMouse = {Enabled = false}
+    local AAStrafeIncrease = {Enabled = false}
+    local AABlockBreak = {Enabled = false}
+    local AAKillauraTarget = {Enabled = false}
+    local AALimit = {Enabled = false}
+    local AAAimSpeed = {Value = 6}
+    local AASmoothness = {Value = 3}
+    local AADistance = {Value = 30}
+    local AAShake = {Value = 0}
+    local AAAngle = {Value = 70}
+    local AAAimPart = {Value = 'Center'}
+
+    local function ease(t)
+        return t < 0.5 and 4*t*t*t or 1 - math.pow(-2*t+2, 3)/2
+    end
+
+    local cache2 = {}
+    local function getAimPos(ent)
+        if AAAimPart.Value == 'Closest' then
+            if not cache2[ent.Character] then cache2[ent.Character] = ent.Character:GetChildren() end
+            local localPos, mag, part = inputService:GetMouseLocation(), 9e9, nil
+            for _, v in pairs(cache2[ent.Character]) do
+                if v and v.Parent and v:IsA('BasePart') then
+                    local pos, vis = gameCamera:WorldToViewportPoint(v.Position)
+                    if vis then
+                        local m = (localPos - Vector2.new(pos.X, pos.Y)).Magnitude
+                        if m < mag then mag = m part = v end
+                    end
+                end
+            end
+            if part then return part.Position end
+        end
+        return ent.RootPart.Position
+    end
+
+    local function checkPerspective()
+        local mode = AACameraPerspective.Value
+        if mode == 'Both' then return true end
+        local isFirst = (gameCamera.Focus.p - gameCamera.CFrame.p).Magnitude <= 1
+        if mode == 'First Person' and isFirst then return true end
+        if mode == 'Third Person' and not isFirst then return true end
+        return false
+    end
+
+    local aaStarted, aaLastTarget = 0, nil
+    local aaFuncs = {
+        Simple = function(cf, ent, fps)
+            local rng = Random.new()
+            local rawSpeed = AAAimSpeed.Value + (AAStrafeIncrease.Enabled and (inputService:IsKeyDown(Enum.KeyCode.A) or inputService:IsKeyDown(Enum.KeyCode.D)) and 10 or 0)
+            local alpha = math.clamp((rawSpeed / math.max(AASmoothness.Value, 1)) * fps, 0, 1)
+            return cf:Lerp(CFrame.lookAt(cf.p, getAimPos(ent) + Vector3.new((rng:NextNumber()-0.5)*AAShake.Value*fps,(rng:NextNumber()-0.5)*AAShake.Value*fps,(rng:NextNumber()-0.5)*AAShake.Value*fps)), alpha)
+        end,
+        Adaptive = function(cf, ent, fps)
+            local prog, rng = ease(math.min(tick()-aaStarted, 1)), Random.new()
+            local speed = (AAAimSpeed.Value*0.1*prog) + (1-prog) + (AAStrafeIncrease.Enabled and (inputService:IsKeyDown(Enum.KeyCode.A) or inputService:IsKeyDown(Enum.KeyCode.D)) and 10 or 5)
+            local alpha = math.clamp((speed / math.max(AASmoothness.Value, 1)) * fps, 0, 1)
+            return cf:Lerp(CFrame.lookAt(cf.p, getAimPos(ent) + Vector3.new((rng:NextNumber()-0.5)*AAShake.Value*fps,(rng:NextNumber()-0.5)*AAShake.Value*fps,(rng:NextNumber()-0.5)*AAShake.Value*fps)), alpha)
+        end
+    }
+
+    local function getAAAttackData()
+        if not entityLibrary.isAlive then return false end
+        if not checkPerspective() then return false end
+        if AAMouse.Enabled and not inputService:IsMouseButtonPressed(0) and (tick() - bedwars.SwordController.lastSwing) > 0.15 then return false end
+        if AAClickAim.Enabled and (tick() - bedwars.SwordController.lastSwing) > 0.3 then return false end
+        if AABlockBreak.Enabled and (tick() - store.lastHit) < 0.3 then return false end
+        if AALimit.Enabled and store.hand.toolType ~= 'sword' then return false end
+
+        if (tick()-aaStarted) > 1 or not aaLastTarget or not aaLastTarget.RootPart or not aaLastTarget.Humanoid or aaLastTarget.Humanoid.Health <= 0 then
+            local localPos = entityLibrary.character.HumanoidRootPart.Position
+            local ent = (AAKillauraTarget.Enabled and store.KillauraTarget) or EntityNearPosition(AADistance.Value)
+
+            if ent and AAEnemyPriority.Value ~= 'None' then
+                local validTargets = {}
+                for _, v in pairs(entityLibrary.entityList) do
+                    if v.Targetable and v.Humanoid and v.Humanoid.Health > 0 and v.RootPart then
+                        if (localPos - v.RootPart.Position).Magnitude <= AADistance.Value then
+                            table.insert(validTargets, v)
+                        end
+                    end
+                end
+                if #validTargets > 1 then
+                    if AAEnemyPriority.Value == 'Lowest Health' then
+                        table.sort(validTargets, function(a,b) return a.Humanoid.Health < b.Humanoid.Health end)
+                    elseif AAEnemyPriority.Value == 'Closest' then
+                        table.sort(validTargets, function(a,b) return (localPos-a.RootPart.Position).Magnitude < (localPos-b.RootPart.Position).Magnitude end)
+                    end
+                    ent = validTargets[1]
+                end
+            end
+
+            if ent then aaStarted = tick() end
+            aaLastTarget = ent
+        end
+        return aaLastTarget
+    end
+
+    AimAssistPlus = GuiLibrary.ObjectsThatCanBeSaved.CombatWindow.Api.CreateOptionsButton({
+        Name = "AimAssistPlus",
+        Function = function(callback)
+            if callback then
+                RunLoops:BindToRenderStep("AimAssistPlus", function(dt)
+                    local ent = getAAAttackData()
+                    if ent then
+                        local delta = (ent.RootPart.Position - gameCamera.CFrame.p)
+                        local angle = math.acos(math.clamp(gameCamera.CFrame.LookVector.Unit:Dot(delta.Unit), -1, 1))
+                        if angle >= (math.rad(AAAngle.Value) / 2) then return end
+                        local fn = aaFuncs[AAMode.Value] or aaFuncs.Simple
+                        gameCamera.CFrame = fn(gameCamera.CFrame, ent, dt)
+                    end
+                end)
+            else
+                RunLoops:UnbindFromRenderStep("AimAssistPlus")
+                aaLastTarget = nil
+            end
+        end,
+        HoverText = "Advanced aim assist with perspective filter and enemy priority"
+    })
+    AimAssistPlus.CreateDropdown({ Name = "Mode",            List = {"Simple","Adaptive"},                        Default = "Simple",  Function = function(v) AAMode.Value = v end })
+    AimAssistPlus.CreateDropdown({ Name = "Perspective",     List = {"Both","First Person","Third Person"},        Default = "Both",    Function = function(v) AACameraPerspective.Value = v end })
+    AimAssistPlus.CreateDropdown({ Name = "Enemy Priority",  List = {"None","Lowest Health","Closest"},            Default = "None",    Function = function(v) AAEnemyPriority.Value = v end })
+    AimAssistPlus.CreateToggle({ Name = "Click Aim",         Default = true,  Function = function(v) AAClickAim.Enabled = v end })
+    AimAssistPlus.CreateToggle({ Name = "Require Mouse Down",                 Function = function(v) AAMouse.Enabled = v end })
+    AimAssistPlus.CreateToggle({ Name = "Strafe Increase",                    Function = function(v) AAStrafeIncrease.Enabled = v end })
+    AimAssistPlus.CreateToggle({ Name = "Check Block Break",                  Function = function(v) AABlockBreak.Enabled = v end })
+    AimAssistPlus.CreateToggle({ Name = "Use Killaura Target",                Function = function(v) AAKillauraTarget.Enabled = v end })
+    AimAssistPlus.CreateToggle({ Name = "Limit to Sword",                     Function = function(v) AALimit.Enabled = v end })
+    AimAssistPlus.CreateSlider({ Name = "Aim Speed",   Min = 1,  Max = 20,  Default = 6,  Function = function(v) AAAimSpeed.Value = v end })
+    AimAssistPlus.CreateSlider({ Name = "Smoothness",  Min = 1,  Max = 10,  Default = 3,  Function = function(v) AASmoothness.Value = v end })
+    AimAssistPlus.CreateSlider({ Name = "Distance",    Min = 1,  Max = 30,  Default = 30, Function = function(v) AADistance.Value = v end })
+    AimAssistPlus.CreateSlider({ Name = "Shake",       Min = 0,  Max = 100, Default = 0,  Function = function(v) AAShake.Value = v end })
+    AimAssistPlus.CreateSlider({ Name = "Max Angle",   Min = 1,  Max = 360, Default = 70, Function = function(v) AAAngle.Value = v end })
+    AimAssistPlus.CreateDropdown({ Name = "Target Area", List = {"Center","Closest"}, Default = "Center", Function = function(v) AAAimPart.Value = v end })
+end)
+
+-- ============================================================
+-- EXTRA FEATURES (self-added)
+-- ============================================================
+
+-- Hit Sound
+run(function()
+    local HitSound
+    local HitVolume = {Value = 0.5}
+    local HitPitch = {Value = 1.0}
+    local HitSoundId = {Value = "rbxassetid://9120386446"}
+    local soundObj = nil
+
+    local function createSound()
+        if soundObj then soundObj:Destroy() end
+        soundObj = Instance.new("Sound")
+        soundObj.SoundId = HitSoundId.Value
+        soundObj.Volume = HitVolume.Value
+        soundObj.PlaybackSpeed = HitPitch.Value
+        soundObj.RollOffMaxDistance = 0
+        soundObj.Parent = game:GetService("SoundService")
+    end
+
+    HitSound = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "HitSound",
+        Function = function(callback)
+            if callback then
+                createSound()
+                table.insert(vapeConnections, workspace.DescendantAdded:Connect(function(part)
+                    if HitSound.Enabled and soundObj and part.Name == "DamageIndicatorPart" and part:IsA("BasePart") then
+                        soundObj:Play()
+                    end
+                end))
+            else
+                if soundObj then soundObj:Destroy() soundObj = nil end
+            end
+        end,
+        HoverText = "Plays a sound when you deal damage"
+    })
+    HitSound.CreateSlider({ Name = "Volume", Min = 0, Max = 100, Default = 50, Function = function(v) HitVolume.Value = v/100 if soundObj then soundObj.Volume = v/100 end end })
+    HitSound.CreateSlider({ Name = "Pitch",  Min = 50, Max = 200, Default = 100, Function = function(v) HitPitch.Value = v/100 if soundObj then soundObj.PlaybackSpeed = v/100 end end })
+    HitSound.CreateTextBox({ Name = "Sound ID", Default = "9120386446", Function = function(v)
+        HitSoundId.Value = "rbxassetid://"..tostring(v):gsub("[^%d]","")
+        if HitSound.Enabled then createSound() end
+    end })
+end)
+
+-- Crosshair
+run(function()
+    local Crosshair
+    local CrosshairColor = {Hue = 0, Sat = 0, Val = 1}
+    local CrosshairSize = {Value = 12}
+    local CrosshairThickness = {Value = 2}
+    local CrosshairGap = {Value = 4}
+    local CrosshairDot = {Enabled = false}
+    local CrosshairOutline = {Enabled = true}
+    local crosshairGui = nil
+
+    local function buildCrosshair()
+        if crosshairGui then crosshairGui:Destroy() end
+        local color = Color3.fromHSV(CrosshairColor.Hue, CrosshairColor.Sat, CrosshairColor.Val)
+        local size = CrosshairSize.Value
+        local thick = CrosshairThickness.Value
+        local gap = CrosshairGap.Value
+        crosshairGui = Instance.new("ScreenGui")
+        crosshairGui.Name = "AtomWareCrosshair"
+        crosshairGui.ResetOnSpawn = false
+        crosshairGui.IgnoreGuiInset = true
+        crosshairGui.DisplayOrder = 999
+        crosshairGui.Parent = lplr.PlayerGui
+        local function makeLine(w, h, ox, oy)
+            local f = Instance.new("Frame")
+            f.BackgroundColor3 = color
+            f.BorderSizePixel = 0
+            f.AnchorPoint = Vector2.new(0.5, 0.5)
+            f.Size = UDim2.new(0, w, 0, h)
+            f.Position = UDim2.new(0.5, ox, 0.5, oy)
+            f.Parent = crosshairGui
+            if CrosshairOutline.Enabled then
+                local stroke = Instance.new("UIStroke")
+                stroke.Color = Color3.new(0,0,0)
+                stroke.Thickness = 1
+                stroke.Parent = f
+            end
+        end
+        makeLine(size, thick, -(gap + size/2), 0)
+        makeLine(size, thick,  (gap + size/2), 0)
+        makeLine(thick, size, 0, -(gap + size/2))
+        makeLine(thick, size, 0,  (gap + size/2))
+        if CrosshairDot.Enabled then makeLine(thick, thick, 0, 0) end
+    end
+
+    Crosshair = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "Crosshair",
+        Function = function(callback)
+            if callback then buildCrosshair()
+            else if crosshairGui then crosshairGui:Destroy() crosshairGui = nil end end
+        end,
+        HoverText = "Draws a custom crosshair on your screen"
+    })
+    Crosshair.CreateColorSlider({ Name = "Color",     Function = function(h,s,v) CrosshairColor.Hue,CrosshairColor.Sat,CrosshairColor.Val=h,s,v if Crosshair.Enabled then buildCrosshair() end end })
+    Crosshair.CreateSlider({ Name = "Size",      Min = 2,  Max = 40, Default = 12, Function = function(v) CrosshairSize.Value = v      if Crosshair.Enabled then buildCrosshair() end end })
+    Crosshair.CreateSlider({ Name = "Thickness", Min = 1,  Max = 10, Default = 2,  Function = function(v) CrosshairThickness.Value = v  if Crosshair.Enabled then buildCrosshair() end end })
+    Crosshair.CreateSlider({ Name = "Gap",       Min = 0,  Max = 20, Default = 4,  Function = function(v) CrosshairGap.Value = v        if Crosshair.Enabled then buildCrosshair() end end })
+    Crosshair.CreateToggle({ Name = "Center Dot",  Default = false, Function = function(v) CrosshairDot.Enabled = v     if Crosshair.Enabled then buildCrosshair() end end })
+    Crosshair.CreateToggle({ Name = "Outline",     Default = true,  Function = function(v) CrosshairOutline.Enabled = v if Crosshair.Enabled then buildCrosshair() end end })
+end)
+
+-- Fullbright
+run(function()
+    local Fullbright
+    local FBBrightness = {Value = 2}
+    local oldAmbient, oldOutdoor, oldBrightness
+
+    Fullbright = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
+        Name = "Fullbright",
+        Function = function(callback)
+            local lighting = game:GetService("Lighting")
+            if callback then
+                oldAmbient   = lighting.Ambient
+                oldOutdoor   = lighting.OutdoorAmbient
+                oldBrightness = lighting.Brightness
+                lighting.Ambient        = Color3.fromRGB(178, 178, 178)
+                lighting.OutdoorAmbient = Color3.fromRGB(178, 178, 178)
+                lighting.Brightness     = FBBrightness.Value
+            else
+                if oldAmbient   then lighting.Ambient        = oldAmbient   end
+                if oldOutdoor   then lighting.OutdoorAmbient = oldOutdoor   end
+                if oldBrightness then lighting.Brightness    = oldBrightness end
+                oldAmbient, oldOutdoor, oldBrightness = nil, nil, nil
+            end
+        end,
+        HoverText = "Maximizes game brightness so you can see in dark areas"
+    })
+    Fullbright.CreateSlider({ Name = "Brightness", Min = 1, Max = 10, Default = 2, Function = function(v)
+        FBBrightness.Value = v
+        if Fullbright.Enabled then game:GetService("Lighting").Brightness = v end
+    end })
+end)
+
+-- Anti Void
+run(function()
+    local AntiVoid
+    local AVThreshold = {Value = -100}
+    local AVNotify = {Enabled = true}
+    local lastSafePos = nil
+    local avConn = nil
+
+    AntiVoid = GuiLibrary.ObjectsThatCanBeSaved.UtilityWindow.Api.CreateOptionsButton({
+        Name = "AntiVoid",
+        Function = function(callback)
+            if callback then
+                avConn = runService.Heartbeat:Connect(function()
+                    if not entityLibrary.isAlive then return end
+                    local root = entityLibrary.character.HumanoidRootPart
+                    if not root then return end
+                    local pos = root.Position
+                    if pos.Y > AVThreshold.Value then
+                        lastSafePos = pos
+                    elseif lastSafePos then
+                        root.CFrame = CFrame.new(lastSafePos + Vector3.new(0, 5, 0))
+                        if AVNotify.Enabled then warningNotification("AntiVoid", "Saved from void!", 2) end
+                    end
+                end)
+                table.insert(vapeConnections, avConn)
+            else
+                if avConn then avConn:Disconnect() avConn = nil end
+                lastSafePos = nil
+            end
+        end,
+        HoverText = "Teleports you back to your last safe position when you fall into the void"
+    })
+    AntiVoid.CreateSlider({ Name = "Void Threshold", Min = -500, Max = -10, Default = -100, Function = function(v) AVThreshold.Value = v end })
+    AntiVoid.CreateToggle({ Name = "Notify on save", Default = true, Function = function(v) AVNotify.Enabled = v end })
+end)
+
+-- ESP Health Bars
+run(function()
+    local ESPHealth
+    local ESPFriendly = {Enabled = false}
+    local espBillboards = {}
+    local espConn = nil
+
+    local function getHealthColor(pct)
+        if pct > 0.6 then return Color3.fromRGB(80, 220, 80)
+        elseif pct > 0.3 then return Color3.fromRGB(255, 200, 0)
+        else return Color3.fromRGB(220, 60, 60) end
+    end
+
+    local function buildBillboard(char, plr)
+        if espBillboards[plr] then return end
+        local root = char:FindFirstChild("HumanoidRootPart")
+        local hum  = char:FindFirstChild("Humanoid")
+        if not root or not hum then return end
+        local bb = Instance.new("BillboardGui")
+        bb.Name = "ESPHealthBar"
+        bb.Size = UDim2.new(0, 80, 0, 10)
+        bb.StudsOffset = Vector3.new(0, 3.2, 0)
+        bb.AlwaysOnTop = true
+        bb.Parent = root
+        local bg = Instance.new("Frame")
+        bg.Size = UDim2.new(1, 0, 1, 0)
+        bg.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        bg.BorderSizePixel = 0
+        bg.Parent = bb
+        Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 3)
+        local bar = Instance.new("Frame")
+        bar.Name = "Bar"
+        bar.Size = UDim2.new(1, 0, 1, 0)
+        bar.BackgroundColor3 = Color3.fromRGB(80, 220, 80)
+        bar.BorderSizePixel = 0
+        bar.Parent = bg
+        Instance.new("UICorner", bar).CornerRadius = UDim.new(0, 3)
+        espBillboards[plr] = {bb = bb, bar = bar, hum = hum}
+    end
+
+    local function removeBillboard(plr)
+        local data = espBillboards[plr]
+        if data then pcall(function() data.bb:Destroy() end) espBillboards[plr] = nil end
+    end
+
+    ESPHealth = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
+        Name = "ESPHealthBars",
+        Function = function(callback)
+            if callback then
+                for _, plr in pairs(playersService:GetPlayers()) do
+                    if plr == lplr then continue end
+                    if not ESPFriendly.Enabled and plr.Team == lplr.Team then continue end
+                    if plr.Character then buildBillboard(plr.Character, plr) end
+                end
+                espConn = runService.Heartbeat:Connect(function()
+                    for plr, data in pairs(espBillboards) do
+                        if not data.hum or not data.hum.Parent then removeBillboard(plr) continue end
+                        local pct = math.clamp(data.hum.Health / math.max(data.hum.MaxHealth, 1), 0, 1)
+                        data.bar.Size = UDim2.new(pct, 0, 1, 0)
+                        data.bar.BackgroundColor3 = getHealthColor(pct)
+                    end
+                end)
+                table.insert(vapeConnections, espConn)
+                table.insert(vapeConnections, playersService.PlayerAdded:Connect(function(plr)
+                    plr.CharacterAdded:Connect(function(char)
+                        if not ESPHealth.Enabled then return end
+                        if not ESPFriendly.Enabled and plr.Team == lplr.Team then return end
+                        task.wait(0.5)
+                        buildBillboard(char, plr)
+                    end)
+                end))
+            else
+                if espConn then espConn:Disconnect() espConn = nil end
+                for plr in pairs(espBillboards) do removeBillboard(plr) end
+            end
+        end,
+        HoverText = "Shows health bars above enemy players"
+    })
+    ESPFriendly = ESPHealth.CreateToggle({ Name = "Show Teammates", Default = false, Function = function(v) ESPFriendly.Enabled = v end })
+end)
