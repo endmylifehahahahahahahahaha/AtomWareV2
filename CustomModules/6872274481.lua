@@ -4472,8 +4472,10 @@ run(function()
 			store.attackReachUpdate = tick() + 1
 
 			if Reach.Enabled or HitBoxes.Enabled then
+				local reachDist = Reach.Enabled and (ReachValue.Value + 2) or 14.399
 				attackTable.validate.raycast = attackTable.validate.raycast or {}
-				attackTable.validate.selfPosition.value += CFrame.lookAt(selfpos, targetpos).LookVector * math.max((selfpos - targetpos).Magnitude - 14.399, 0)
+				local lookDir = (targetpos - selfpos).Unit
+				attackTable.validate.selfPosition.value = selfpos + lookDir * math.max((selfpos - targetpos).Magnitude - reachDist, 0)
 			end
 
 			if suc and plr then
@@ -4899,29 +4901,44 @@ run(function()
 									if (game.Workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) < 0.02 then
 										break
 									end
-									local selfpos = selfrootpos + (killaurarange.Value > 14 and (selfrootpos - root.Position).magnitude > 14.4 and (CFrame.lookAt(selfrootpos, root.Position).lookVector * ((selfrootpos - root.Position).magnitude - 14)) or Vector3.zero)
+									local selfpos = selfrootpos + (killaurarange.Value > 14 and (selfrootpos - root.Position).Magnitude > 14.4 and (CFrame.lookAt(selfrootpos, root.Position).LookVector * ((selfrootpos - root.Position).Magnitude - 14)) or Vector3.zero)
 									
+									-- reset cooldown so APS controls speed, not the server-side 0.02 gate
+									bedwars.SwordController.lastAttack = 0
+									if bedwars.SwordController.lastSwing then bedwars.SwordController.lastSwing = 0 end
+									if bedwars.SwordController.lastChargedAttackTimeMap then
+										for k in pairs(bedwars.SwordController.lastChargedAttackTimeMap) do
+											bedwars.SwordController.lastChargedAttackTimeMap[k] = 0
+										end
+									end
+
 									bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
                                     bedwars.SwordController.lastSwingServerTime = workspace:GetServerTimeNow()
 
 									lastSwingServerTimeDelta = workspace:GetServerTimeNow() - lastSwingServerTime
                                     lastSwingServerTime = workspace:GetServerTimeNow()
 									
-									store.attackReach = math.floor((selfrootpos - root.Position).magnitude * 100) / 100
+									store.attackReach = math.floor((selfrootpos - root.Position).Magnitude * 100) / 100
 									store.attackReachUpdate = tick() + 1
+
+									local camOrigin = gameCamera.CFrame.Position
+									local targetPos = root.Position
+									local dir = CFrame.lookAt(camOrigin, targetPos).LookVector
+									local spoofedPos = camOrigin + dir * math.max((targetPos - camOrigin).Magnitude - 14.399, 0)
+
 									killaurarealremote:FireServer({
 										weapon = sword.tool,
 										chargedAttack = {chargeRatio = 0},
+										lastSwingServerTimeDelta = math.clamp(lastSwingServerTimeDelta, 0.2, 0.8),
 										entityInstance = plr.Character,
 										validate = {
 											raycast = {
-												cameraPosition = attackValue(root.Position),
-												cursorDirection = attackValue(CFrame.new(selfpos, root.Position).lookVector)
+												cameraPosition = attackValue(camOrigin),
+												cursorDirection = attackValue(dir)
 											},
-											targetPosition = attackValue(root.Position),
-											selfPosition = attackValue(selfpos)
+											targetPosition = attackValue(targetPos),
+											selfPosition = attackValue(spoofedPos)
 										},
-										--lastSwingServerTimeDelta = lastSwingServerTimeDelta
 									})
 									local spear = getItemNear('spear')
 									if spear then
@@ -4932,13 +4949,12 @@ run(function()
 											entityInstance = plr.Character,
 											validate = {
 												raycast = {
-													cameraPosition = attackValue(root.Position),
-													cursorDirection = attackValue(CFrame.new(selfpos, root.Position).lookVector)
+													cameraPosition = attackValue(camOrigin),
+													cursorDirection = attackValue(dir)
 												},
-												targetPosition = attackValue(root.Position),
-												selfPosition = attackValue(selfpos)
+												targetPosition = attackValue(targetPos),
+												selfPosition = attackValue(spoofedPos)
 											},
-                                            --lastSwingServerTimeDelta = lastSwingServerTimeDelta
 										})
 									end
 									break
@@ -5377,14 +5393,14 @@ run(function()
 						pcall(switchItem, sword and sword.tool)
 
 						local selfrootpos = entityLibrary.character.HumanoidRootPart.Position
-						local selfpos = selfrootpos + (silentAuraRange.Value > 14
-							and (selfrootpos - root.Position).Magnitude > 14.4
-							and (CFrame.lookAt(selfrootpos, root.Position).LookVector * ((selfrootpos - root.Position).Magnitude - 14))
-							or Vector3.zero)
+						local camOrigin = gameCamera.CFrame.Position
+						local targetPos = root.Position
+						local dir = CFrame.lookAt(camOrigin, targetPos).LookVector
+						local spoofedPos = camOrigin + dir * math.max((targetPos - camOrigin).Magnitude - 14.399, 0)
 
-						if (game.Workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) < 0.02 then
-							continue
-						end
+						-- reset cooldown so APS controls speed, not the 0.02 gate
+						bedwars.SwordController.lastAttack = 0
+						if bedwars.SwordController.lastSwing then bedwars.SwordController.lastSwing = 0 end
 
 						silentAuraNearPlayer = true
 						bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
@@ -5398,14 +5414,15 @@ run(function()
 							killaurarealremote:FireServer({
 								weapon = sword.tool,
 								chargedAttack = {chargeRatio = 0},
+								lastSwingServerTimeDelta = 0.3,
 								entityInstance = plr.Character,
 								validate = {
 									raycast = {
-										cameraPosition = attackValue(root.Position),
-										cursorDirection = attackValue(CFrame.new(selfpos, root.Position).LookVector)
+										cameraPosition = attackValue(camOrigin),
+										cursorDirection = attackValue(dir)
 									},
-									targetPosition = attackValue(root.Position),
-									selfPosition = attackValue(selfpos)
+									targetPosition = attackValue(targetPos),
+									selfPosition = attackValue(spoofedPos)
 								},
 							})
 						end)
@@ -5445,6 +5462,259 @@ run(function()
 		Function = function(val) end,
 		Default = 180,
 		HoverText = "Max angle to target. Lower = more legit"
+	})
+end)
+
+-- ============================================================
+-- TriggerBot V2: auto-swings when crosshair is on an enemy
+-- ============================================================
+run(function()
+	local TriggerBot = {Enabled = false}
+	local triggerCPS = {Value = 8}
+	local triggerLastSwing = 0
+
+	TriggerBot = GuiLibrary.ObjectsThatCanBeSaved.CombatWindow.Api.CreateOptionsButton({
+		Name = "TriggerBotV2",
+		HoverText = "Auto-swings when your crosshair is on an enemy",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					local rayparms = RaycastParams.new()
+					rayparms.FilterType = Enum.RaycastFilterType.Exclude
+					pcall(function() rayparms.FilterDescendantsInstances = {lplr.Character} end)
+
+					repeat
+						task.wait(1 / math.clamp(triggerCPS.Value, 1, 20))
+						if not TriggerBot.Enabled then break end
+						if not entityLibrary.isAlive then continue end
+
+						local unit = lplr:GetMouse().UnitRay
+						local localPos = entityLibrary.character.HumanoidRootPart.Position
+						local ray = pcall(function() return bedwars.QueryUtil:raycast(unit.Origin, unit.Direction * 200, rayparms) end)
+						local rayResult
+						pcall(function() rayResult = bedwars.QueryUtil:raycast(unit.Origin, unit.Direction * 200, rayparms) end)
+
+						if rayResult then
+							for _, ent in pairs(entityLibrary.entityList) do
+								if not ent.Targetable then continue end
+								if not isVulnerable(ent) then continue end
+								if rayResult.Instance:IsDescendantOf(ent.Character) then
+									local dist = (localPos - ent.RootPart.Position).Magnitude
+									if dist <= 16 then
+										local sword, swordmeta = getAttackData()
+										if not sword then continue end
+										pcall(switchItem, sword.tool)
+										bedwars.SwordController.lastAttack = 0
+										if bedwars.SwordController.lastSwing then bedwars.SwordController.lastSwing = 0 end
+										pcall(function() bedwars.SwordController:swingSwordAtMouse() end)
+										break
+									end
+								end
+							end
+						end
+					until not TriggerBot.Enabled
+				end)
+			end
+		end
+	})
+
+	triggerCPS = TriggerBot.CreateSlider({
+		Name = "CPS",
+		Min = 1,
+		Max = 20,
+		Default = 8,
+		Function = function(val) end,
+		HoverText = "Clicks per second for TriggerBot"
+	})
+end)
+
+-- ============================================================
+-- FastBreak V2: reduces block break cooldown
+-- ============================================================
+run(function()
+	local FastBreak = {Enabled = false}
+	local fastBreakSpeed = {Value = 0.05}
+	local fastBreakOldCooldown = nil
+
+	FastBreak = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = "FastBreakV2",
+		HoverText = "Reduces block break cooldown for faster mining",
+		Function = function(callback)
+			if callback then
+				pcall(function()
+					fastBreakOldCooldown = bedwars.BlockBreakController.blockBreaker.setCooldown
+					bedwars.BlockBreakController.blockBreaker:setCooldown(fastBreakSpeed.Value)
+				end)
+				task.spawn(function()
+					repeat
+						task.wait(0.1)
+						if not FastBreak.Enabled then break end
+						pcall(function()
+							bedwars.BlockBreakController.blockBreaker:setCooldown(fastBreakSpeed.Value)
+						end)
+					until not FastBreak.Enabled
+				end)
+			else
+				pcall(function()
+					bedwars.BlockBreakController.blockBreaker:setCooldown(0.3)
+				end)
+			end
+		end
+	})
+
+	fastBreakSpeed = FastBreak.CreateSlider({
+		Name = "Break Speed",
+		Min = 0,
+		Max = 30,
+		Default = 5,
+		Function = function(val)
+			if FastBreak.Enabled then
+				pcall(function() bedwars.BlockBreakController.blockBreaker:setCooldown(val / 100) end)
+			end
+		end,
+		HoverText = "Break cooldown (lower = faster). 5 = 0.05s"
+	})
+end)
+
+-- ============================================================
+-- AntiFall V2: places an invisible floor to prevent void death
+-- ============================================================
+run(function()
+	local AntiFall = {Enabled = false}
+	local antiFallPart = nil
+
+	AntiFall = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = "AntiFallV2",
+		HoverText = "Places an invisible floor below you to prevent falling into the void",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					-- find lowest ground
+					local lowestY = -100
+					pcall(function()
+						local rayParams = RaycastParams.new()
+						rayParams.FilterType = Enum.RaycastFilterType.Exclude
+						rayParams.FilterDescendantsInstances = {lplr.Character}
+						local origin = entityLibrary.character.HumanoidRootPart.Position
+						local result = workspace:Raycast(origin, Vector3.new(0, -500, 0), rayParams)
+						if result then lowestY = result.Position.Y - 2 end
+					end)
+
+					antiFallPart = Instance.new("Part")
+					antiFallPart.Size = Vector3.new(10000, 1, 10000)
+					antiFallPart.Transparency = 0.99
+					antiFallPart.Anchored = true
+					antiFallPart.CanCollide = true
+					antiFallPart.CanQuery = false
+					antiFallPart.Position = Vector3.new(0, lowestY, 0)
+					antiFallPart.Parent = workspace
+
+					repeat task.wait(1) until not AntiFall.Enabled
+					if antiFallPart then antiFallPart:Destroy() antiFallPart = nil end
+				end)
+			else
+				if antiFallPart then antiFallPart:Destroy() antiFallPart = nil end
+			end
+		end
+	})
+end)
+
+-- ============================================================
+-- SwingTime V2: custom attack speed (swing time override)
+-- ============================================================
+run(function()
+	local SwingTime = {Enabled = false}
+	local swingTimeValue = {Value = 0.25}
+	local swingTimeOld = nil
+
+	SwingTime = GuiLibrary.ObjectsThatCanBeSaved.CombatWindow.Api.CreateOptionsButton({
+		Name = "SwingTimeV2",
+		HoverText = "Overrides sword swing cooldown for faster/slower attacks",
+		Function = function(callback)
+			if callback then
+				pcall(function()
+					swingTimeOld = bedwars.SwordController.attackEntity
+					local oldFn = bedwars.SwordController.attackEntity
+					bedwars.SwordController.attackEntity = function(self, ...)
+						bedwars.SwordController.lastAttack = workspace:GetServerTimeNow() - swingTimeValue.Value
+						if bedwars.SwordController.lastSwing then
+							bedwars.SwordController.lastSwing = workspace:GetServerTimeNow() - swingTimeValue.Value
+						end
+						return oldFn(self, ...)
+					end
+				end)
+			else
+				pcall(function()
+					if swingTimeOld then
+						bedwars.SwordController.attackEntity = swingTimeOld
+						swingTimeOld = nil
+					end
+				end)
+			end
+		end
+	})
+
+	swingTimeValue = SwingTime.CreateSlider({
+		Name = "Swing Time",
+		Min = 1,
+		Max = 100,
+		Default = 25,
+		Function = function(val)
+			swingTimeValue.Value = val / 100
+		end,
+		HoverText = "Swing cooldown in 1/100s. Lower = faster. 25 = 0.25s"
+	})
+end)
+
+-- ============================================================
+-- ContinueSwinging V2: keeps swinging for a bit after losing target
+-- ============================================================
+run(function()
+	local ContinueSwinging = {Enabled = false}
+	local continueSwingDuration = {Value = 1}
+	local lastTargetTime = 0
+
+	-- hook into killaura target tracking
+	local oldKillauraFire = killaurarealremote.FireServer
+	killaurarealremote.FireServer = function(self, attackTable, ...)
+		lastTargetTime = tick()
+		return oldKillauraFire(self, attackTable, ...)
+	end
+
+	ContinueSwinging = GuiLibrary.ObjectsThatCanBeSaved.CombatWindow.Api.CreateOptionsButton({
+		Name = "ContinueSwingingV2",
+		HoverText = "Keeps swinging for a short time after losing your target",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					repeat
+						task.wait(0.05)
+						if not ContinueSwinging.Enabled then break end
+						if not entityLibrary.isAlive then continue end
+						-- if we recently had a target but lost it, keep swinging
+						local timeSinceLast = tick() - lastTargetTime
+						if timeSinceLast > 0 and timeSinceLast <= continueSwingDuration.Value then
+							local plr = EntityNearPosition(killaurarange.Value * 1.5, false)
+							if not plr then
+								local sword, swordmeta = getAttackData()
+								if sword then
+									pcall(function() bedwars.SwordController:playSwordEffect(swordmeta, false) end)
+								end
+							end
+						end
+					until not ContinueSwinging.Enabled
+				end)
+			end
+		end
+	})
+
+	continueSwingDuration = ContinueSwinging.CreateSlider({
+		Name = "Swing Duration",
+		Min = 1,
+		Max = 30,
+		Default = 10,
+		Function = function(val) continueSwingDuration.Value = val / 10 end,
+		HoverText = "How long to keep swinging after losing target (tenths of a second)"
 	})
 end)
 

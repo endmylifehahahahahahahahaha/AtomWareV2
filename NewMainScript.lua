@@ -649,6 +649,14 @@ local function pload(fileName, isImportant, required)
     end        
     if shared.VoidDev and shared.DebugMode then warn(fileName, isImportant, required, debug.traceback(fileName)) end
     local res = vapeGithubRequest(fileName, isImportant)
+    if not res or res == "" then
+        if not isImportant then return end
+        task.spawn(function()
+            repeat task.wait() until errorNotification
+            errorNotification('Failure loading: '..baseDirectory..tostring(fileName), 'File returned nil or empty', 7)
+        end)
+        return
+    end
     local a = loadstring(res)
     local suc, err = true, ""
     if type(a) ~= "function" then suc = false; err = tostring(a) else if required then return a() else a() end end
@@ -657,11 +665,9 @@ local function pload(fileName, isImportant, required)
             if (not string.find(string.lower(err), "vape already injected")) and (not string.find(string.lower(err), "rise already injected")) then
                 task.spawn(function()
                     repeat task.wait() until errorNotification
-                    errorNotification("Failure loading critical file! : "..baseDirectory..tostring(fileName), " : "..tostring(debug.traceback(err)), 10) 
+                    errorNotification("Failure loading critical file! : "..baseDirectory..tostring(fileName), " : "..tostring(debug.traceback(tostring(err))), 10) 
                 end)
             end
-            --warn("Failure loading critical file! : vape/"..tostring(fileName).." : "..tostring(debug.traceback(err)))
-            --if (not string.find(string.lower(err), "vape already injected")) then game:GetService("Players").LocalPlayer:Kick("Failure loading critical file! : vape/"..tostring(fileName).." : "..tostring(debug.traceback(err))) end
         else
             task.spawn(function()
                 repeat task.wait() until errorNotification
