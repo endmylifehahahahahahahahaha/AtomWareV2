@@ -4450,13 +4450,13 @@ run(function()
 end)
 
 local killauraNearPlayer
+local killaurarealremote = {FireServer = function() end}
 run(function()
     local Killaura = {Enabled = false}
 	local killauraboxes = {}
     local killauraboxSize = Vector3.new(6, 9, 6)
 	local killauratargetframe = {Players = {Enabled = false}}
 	local killaurasortmethod = {Value = "Distance"}
-	local killaurarealremote = {FireServer = function() end}
 	task.spawn(function()
 		killaurarealremote = bedwars.Client:Get(bedwars.AttackRemote)
 		local Reach = Reach or {Enabled = false}
@@ -4487,6 +4487,7 @@ run(function()
 	local killauraothermethod = {Value = "Normal"}
 	local killauraanimmethod = {Value = "Normal"}
 	local killaurahitslowmode = {Value = 0}
+	local killauraAPS = {Value = 8}
 	local killaurarange = {Value = 14}
 	local killauraangle = {Value = 360}
 	local killauratargets = {Value = 10}
@@ -5055,7 +5056,7 @@ run(function()
 		Function = function(val) end,
 		Default = 0
 	})
-	local killauraAPS = Killaura.CreateSlider({
+	killauraAPS = Killaura.CreateSlider({
 		Name = "APS",
 		Min = 1,
 		Max = 20,
@@ -5340,14 +5341,6 @@ run(function()
 	local silentAuraAPS = {Value = 4}
 	local silentAuraAngle = {Value = 180}
 	local silentAuraNearPlayer = false
-	local silentAuraRealRemote = {FireServer = function() end}
-	pcall(function()
-		silentAuraRealRemote = bedwars.Client:Get(bedwars.AttackRemote)
-		local oldFireServer = silentAuraRealRemote.FireServer
-		silentAuraRealRemote.FireServer = function(self, attackTable, ...)
-			return oldFireServer(self, attackTable, ...)
-		end
-	end)
 
 	SilentAura = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
 		Name = "SilentAura",
@@ -5400,8 +5393,9 @@ run(function()
 						store.attackReach = math.floor((selfrootpos - root.Position).Magnitude * 100) / 100
 						store.attackReachUpdate = tick() + 1
 
+						-- reuse killaurarealremote which already has the proper SendToServer hook
 						pcall(function()
-							silentAuraRealRemote:FireServer({
+							killaurarealremote:FireServer({
 								weapon = sword.tool,
 								chargedAttack = {chargeRatio = 0},
 								entityInstance = plr.Character,
