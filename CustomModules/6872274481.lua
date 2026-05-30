@@ -256,9 +256,20 @@ end
 local entityLibrary = shared.vapeentity
 local entitylib = {}
 local prediction = {}
+local entitylibLoaded = false
 task.spawn(function()
-	prediction = loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VWRewrite/main/libraries/prediction.lua", true))()
-	entitylib = loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VWRewrite/main/libraries/entity.lua", true))()
+	local suc1, res1 = pcall(function()
+		return loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VWRewrite/main/libraries/prediction.lua", true))()
+	end)
+	if suc1 then prediction = res1 end
+	
+	local suc2, res2 = pcall(function()
+		return loadstring(game:HttpGet("https://raw.githubusercontent.com/VapeVoidware/VWRewrite/main/libraries/entity.lua", true))()
+	end)
+	if suc2 then 
+		entitylib = res2 
+		entitylibLoaded = true
+	end
 end)
 local whitelist = shared.vapewhitelist
 local RunLoops = shared.RunLoops
@@ -650,6 +661,7 @@ local function corehotbarswitch(tool)
 end
 
 local function coreswitch(tool, ignore)
+    if not tool then return end
     local character = lplr.Character
     if not character then return end
 
@@ -730,9 +742,11 @@ local function coreswitch(tool, ignore)
 end
 
 local function switchItem(tool, delayTime)
+	if not tool then return end
 	if tool ~= nil and type(tool) == "string" then
 		tool = getItem(tool) and getItem(tool).tool
 	end
+	if not tool then return end
 	local _tool = lplr.Character and lplr.Character:FindFirstChild('HandInvItem') and lplr.Character:FindFirstChild('HandInvItem').Value or nil
 	if _tool ~= nil and _tool ~= tool then
 		coreswitch(tool, true)
