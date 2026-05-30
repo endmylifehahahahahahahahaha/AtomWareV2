@@ -15009,7 +15009,7 @@ run(function()
 
 	local SkinTypeDropdown
 
-	SkinChanger = vape.Categories.Render:CreateModule({
+	SkinChanger = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 		Name = "SkinChanger",
 		Tooltip = "Client-sided item skin changer",
 		Function = function(enabled)
@@ -15033,7 +15033,7 @@ run(function()
 		Function = function(val)
 			CURRENT_ITEM_SKIN = val
 			if SkinTypeDropdown and SkinTypeDropdown.Object then SkinTypeDropdown.Object.Visible = TIERED_SKINS[val]==true end
-			if SkinChanger.Enabled then SkinChanger:Toggle(); SkinChanger:Toggle() end
+			if SkinChanger.Enabled then SkinChanger.ToggleButton(); SkinChanger.ToggleButton() end
 		end,
 	})
 
@@ -15041,7 +15041,7 @@ run(function()
 		Name = "Skin Type", List = {"Gold","Platinum","Diamond","Emerald","Nightmare","Default"}, Default = CURRENT_SKIN_TYPE,
 		Function = function(val)
 			CURRENT_SKIN_TYPE = val
-			if SkinChanger.Enabled then SkinChanger:Toggle(); SkinChanger:Toggle() end
+			if SkinChanger.Enabled then SkinChanger.ToggleButton(); SkinChanger.ToggleButton() end
 		end,
 	})
 
@@ -15082,12 +15082,12 @@ run(function()
 		owlFireProjectile:FireServer({fromPosition=fromPos, direction=direction, offset=nil, ProjectileRefId=refId, initialVelocity=direction})
 	end
 
-	OwlAura = vape.Categories.Blatant:CreateModule({
+	OwlAura = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
 		Name = 'OwlAura',
 		Tooltip = 'Auto shoots at nearby enemies with your owl',
 		Function = function(callback)
 			if callback then
-				OwlAura:Clean(runService.Heartbeat:Connect(function()
+				table.insert(OwlAura.Connections, runService.Heartbeat:Connect(function()
 					if tick()-lastShot < SHOOT_COOLDOWN then return end
 					if not entitylib.isAlive then return end
 					local owl = getOwlModel()
@@ -15144,22 +15144,22 @@ run(function()
 		return true
 	end
 
-	KrystalDisabler = vape.Categories.Blatant:CreateModule({
+	KrystalDisabler = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
 		Name = 'KrystalDisabler',
 		Tooltip = 'Requires Krystal kit.',
 		Function = function(callback)
 			if callback then
 				local ok = setup_kd()
 				if not ok then
-					vape:CreateNotification("KrystalDisabler", "Not on Krystal kit!", 5, 'alert')
-					KrystalDisabler:Toggle()
+					warningNotification("KrystalDisabler", "Not on Krystal kit!", 5)
+					KrystalDisabler.ToggleButton()
 					return
 				end
 				renderConn_kd = runService.RenderStepped:Connect(function()
 					if not bedwarsCtrl_kd then return end
 					pcall(function() bedwarsCtrl_kd.GlacialSkaterController:updateMomentum(9e9, 'newValue') end)
 				end)
-				vape:CreateNotification("KrystalDisabler", "Reset to use disabler", 5)
+				InfoNotification("KrystalDisabler", "Reset to use disabler", 5)
 			else
 				if renderConn_kd then renderConn_kd:Disconnect(); renderConn_kd=nil end
 				if bedwarsCtrl_kd and old_kd then bedwarsCtrl_kd.GlacialSkaterController.updateMomentum=old_kd; old_kd=nil end
@@ -15233,7 +15233,7 @@ run(function()
 	end
 
 	local function startFetching()
-		BackTrack:Clean(runService.RenderStepped:Connect(function()
+		table.insert(BackTrack.Connections, runService.RenderStepped:Connect(function()
 			local targetRoot = getTargetRoot_bt()
 			if targetRoot then
 				table.insert(posHistory, {time=tick(), pos=targetRoot.Position})
@@ -15310,17 +15310,17 @@ run(function()
 		if rakNet_bt then pcall(function() raknet.remove_send_hook(hook_bt) end) end
 	end
 
-	BackTrack = vape.Categories.World:CreateModule({
+	BackTrack = GuiLibrary.ObjectsThatCanBeSaved.WorldWindow.Api.CreateOptionsButton({
 		Name = 'BackTrack',
 		Tooltip = 'Manipulates server movement reports to be delayed',
 		Function = function(callback)
 			if callback then
 				if not rakNet_bt then
-					vape:CreateNotification("Vape", "Raknet not found. BackTrack requires raknet.", 16)
-					vape:Remove('BackTrack')
+					InfoNotification("Vape", "Raknet not found. BackTrack requires raknet.", 16)
+					-- removed vape:Remove call
 					return
 				end
-				vape:CreateNotification("Vape", "Raknet found! Using server-side packet modifications.", 24)
+				InfoNotification("Vape", "Raknet found! Using server-side packet modifications.", 24)
 				enabled_bt = true
 				startFetching(); hookClient_bt(); startRaknetLoop()
 			else
@@ -15449,7 +15449,7 @@ run(function()
 		gameCamera.CFrame = gameCamera.CFrame:Lerp(targetCFrame, speed)
 	end
 
-	SilentAura = vape.Categories.Combat:CreateModule({
+	SilentAura = GuiLibrary.ObjectsThatCanBeSaved.CombatWindow.Api.CreateOptionsButton({
 		Name = 'SilentAura',
 		Tooltip = 'Legit killaura',
 		Function = function(callback)
@@ -15458,11 +15458,11 @@ run(function()
 					vape:CreateNotification('Vape', 'Remote fetch failed. Using fallback.', 16, 'warning')
 					AttackRemote_sa = { SendToServer = function(...) local args={...}; replicatedStorage:FindFirstChild("rbxts_include"):FindFirstChild("node_modules"):FindFirstChild("@rbxts"):FindFirstChild("net"):FindFirstChild("out"):FindFirstChild("_NetManaged"):FindFirstChild("SwordHit"):FireServer(unpack(args)) end }
 				else AttackRemote_sa = res_sa end
-				if vape.Modules.Killaura and vape.Modules.Killaura.Enabled then vape.Modules.Killaura:Toggle() end
-				if vape.Modules.GrandKillaura and vape.Modules.GrandKillaura.Enabled then vape.Modules.GrandKillaura:Toggle() end
+				if GuiLibrary.ObjectsThatCanBeSaved["KillauraTog"] and GuiLibrary.ObjectsThatCanBeSaved["KillauraTog"].Api.Enabled then GuiLibrary.ObjectsThatCanBeSaved["KillauraTog"].Api.ToggleButton() end
+				if GuiLibrary.ObjectsThatCanBeSaved["GrandKillauraTog"] and GuiLibrary.ObjectsThatCanBeSaved["GrandKillauraTog"].Api.Enabled then GuiLibrary.ObjectsThatCanBeSaved["GrandKillauraTog"].Api.ToggleButton() end
 				setupAnimationTracking_sa()
 				local currentTarget_sa, lastTargetSwitch_sa, lastAttack_sa = nil, 0, 0
-				SilentAura:Clean(runService.Heartbeat:Connect(function(dt)
+				table.insert(SilentAura.Connections, runService.Heartbeat:Connect(function(dt)
 					if not entitylib.isAlive then return end
 					local root = entitylib.character.RootPart; if not root then return end
 					local swingRange = defaultSwingRange + (ExtendSwingRange_sa and ExtendSwingRange_sa.Value or 0)
@@ -15550,12 +15550,12 @@ run(function()
 		if not module then return end
 		if callback then
 			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
-			module:Clean(workspace.DescendantAdded:Connect(function(child)
-				if vape.ThreadFix then setthreadidentity(8) end
+			table.insert(module.Connections, workspace.DescendantAdded:Connect(function(child)
+				
 				if child and child.Name=='BloodAssassinDecay' then pcall(function() child:Destroy() end) end
 			end))
 			for _,child in workspace:GetDescendants() do
-				if vape.ThreadFix then setthreadidentity(8) end
+				
 				if child and child.Name=='BloodAssassinDecay' then pcall(function() child:Destroy() end) end
 			end
 		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
@@ -15565,13 +15565,13 @@ run(function()
 		if not module then return end
 		if callback then
 			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
-			module:Clean(workspace.ChildAdded:Connect(function(child)
-				if vape.ThreadFix then setthreadidentity(8) end
+			table.insert(module.Connections, workspace.ChildAdded:Connect(function(child)
+				
 				if child and child.Name=='Drill' then for _,v in child:GetDescendants() do if v:IsA('BasePart') then bedwars.QueryUtil:setQueryIgnored(v,true) end end end
 				if child and (child.Name=='diamond' or child.Name=='gold' or child.Name=='emerald') then pcall(function() child:Destroy() end) end
 			end))
 			for _,child in workspace:GetChildren() do
-				if vape.ThreadFix then setthreadidentity(8) end
+				
 				if child and child.Name=='Drill' then for _,v in child:GetDescendants() do if v:IsA('BasePart') then bedwars.QueryUtil:setQueryIgnored(v,true) end end end
 				if child and (child.Name=='diamond' or child.Name=='gold' or child.Name=='emerald') then pcall(function() child:Destroy() end) end
 			end
@@ -15588,19 +15588,19 @@ run(function()
 		if callback then
 			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
 			local function processStars(child)
-				if vape.ThreadFix then setthreadidentity(8) end
+				
 				if child and (child.Name=='CritStar' or child.Name=='VitalityStar') then
 					local ID = game.HttpService:GenerateGUID(true)
 					child:SetAttribute('id', ID); child.AnimationController:SetAttribute('id', ID)
 					for _,v in child:GetDescendants() do if v:IsA('BasePart') then bedwars.QueryUtil:setQueryIgnored(v,true); child.AnimationController.Parent=game.ReplicatedStorage end end
 				end
 			end
-			module:Clean(workspace.ChildAdded:Connect(processStars))
+			table.insert(module.Connections, workspace.ChildAdded:Connect(processStars))
 			for _,child in workspace:GetChildren() do processStars(child) end
 		else
 			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false
 			for _,star in workspace:GetChildren() do
-				if vape.ThreadFix then setthreadidentity(8) end
+				
 				if star and (star.Name=='CritStar' or star.Name=='VitalityStar') then
 					local id = star:GetAttribute("id")
 					if id then
@@ -15621,12 +15621,12 @@ run(function()
 		if not module then return end
 		pcall(function() lplr.PlayerGui:FindFirstChild('ActionBarScreenGui'):WaitForChild('ActionBar',10):WaitForChild("CatStaminaBar",25).Visible = not callback end)
 		if callback then
-			module:Clean(workspace.DescendantAdded:Connect(function(child)
-				if vape.ThreadFix then setthreadidentity(8) end
+			table.insert(module.Connections, workspace.DescendantAdded:Connect(function(child)
+				
 				if child and (child.Name=='BlockRegionBox' or child.Name:find('Decay') or child.Name:find('decay')) then pcall(function() child:Destroy() end) end
 			end))
 			for _,child in workspace:GetDescendants() do
-				if vape.ThreadFix then setthreadidentity(8) end
+				
 				if child and (child.Name=='BlockRegionBox' or child.Name:find('Decay') or child.Name:find('decay')) then pcall(function() child:Destroy() end) end
 			end
 		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
@@ -15636,8 +15636,8 @@ run(function()
 		if not module then return end
 		if callback then
 			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
-			for _,child in lplr.Character:GetDescendants() do if vape.ThreadFix then setthreadidentity(8) end; if child and child.Name:find('Shield') then pcall(function() child:Destroy() end) end end
-			module:Clean(lplr.Character.DescendantAdded:Connect(function(child) if vape.ThreadFix then setthreadidentity(8) end; if child and child.Name:find('Shield') then pcall(function() child:Destroy() end) end end))
+			for _,child in lplr.Character:GetDescendants() do ; if child and child.Name:find('Shield') then pcall(function() child:Destroy() end) end end
+			table.insert(module.Connections, lplr.Character.DescendantAdded:Connect(function(child) ; if child and child.Name:find('Shield') then pcall(function() child:Destroy() end) end end))
 		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
 	end
 
@@ -15646,7 +15646,7 @@ run(function()
 		pcall(function() lplr.PlayerGui.ActionBarScreenGui.ActionBar.MomentumBarUi.Visible = not callback end)
 		if callback then
 			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
-			module:Clean(lplr.PlayerGui.StatusEffectHudScreen.StatusEffectHud.ChildAdded:Connect(function(child)
+			table.insert(module.Connections, lplr.PlayerGui.StatusEffectHudScreen.StatusEffectHud.ChildAdded:Connect(function(child)
 				if child and (child.Name=='On Ice' or child.Name=='High Speed Skating') then pcall(function() child:Destroy() end) end
 			end))
 		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
@@ -15661,7 +15661,7 @@ run(function()
 				if child and child.Name=='DefenderBlockPopup' then for _,v in child:GetChildren() do v.Visible=(v.Name=='Cost') end end
 			end
 			for _,child in workspace:GetDescendants() do processDefender(child) end
-			module:Clean(workspace.DescendantAdded:Connect(processDefender))
+			table.insert(module.Connections, workspace.DescendantAdded:Connect(processDefender))
 		else
 			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false
 			for _,child in workspace:GetDescendants() do
@@ -15676,11 +15676,11 @@ run(function()
 		if callback then
 			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
 			for _,child in lplr.Character:GetDescendants() do if child and child.Name=='BerserkerRageEffect' then child:Destroy() end end
-			module:Clean(lplr.Character.ChildAdded:Connect(function(child) if child and child.Name=='BerserkerRageEffect' then child:Destroy() end end))
+			table.insert(module.Connections, lplr.Character.ChildAdded:Connect(function(child) if child and child.Name=='BerserkerRageEffect' then child:Destroy() end end))
 		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
 	end
 
-	CleanKit_mod = vape.Categories.Render:CreateModule({
+	CleanKit_mod = GuiLibrary.ObjectsThatCanBeSaved.RenderWindow.Api.CreateOptionsButton({
 		Name = 'Clean Kit',
 		Function = function(callback)
 			local suc, res = pcall(function()
@@ -15754,10 +15754,10 @@ run(function()
 	end
 
 	local function configureBreaker_aw()
-		if not vape.Modules.Breaker.Enabled then vape.Modules.Breaker:Toggle() end
+		if not GuiLibrary.ObjectsThatCanBeSaved["BreakerTog"] and GuiLibrary.ObjectsThatCanBeSaved["BreakerTog"].Api.Enabled then if GuiLibrary.ObjectsThatCanBeSaved["BreakerTog"] then GuiLibrary.ObjectsThatCanBeSaved["BreakerTog"].Api.ToggleButton() end end
 		task.wait()
 		task.spawn(function()
-			local opts = vape.Modules.Breaker.Options
+			local opts = GuiLibrary.ObjectsThatCanBeSaved["BreakerTog"] and GuiLibrary.ObjectsThatCanBeSaved["BreakerTog"].Api.Options
 			if opts['Break Iron Ore'] and opts['Break Iron Ore'].Enabled then opts['Break Iron Ore']:Toggle() end
 			if opts['Break Crops'] and opts['Break Crops'].Enabled then opts['Break Crops']:Toggle() end
 			if opts['Break Hive'] and opts['Break Hive'].Enabled then opts['Break Hive']:Toggle() end
@@ -15774,12 +15774,12 @@ run(function()
 	end
 
 	local function configureKillaura_aw()
-		if not vape.Modules.Killaura.Enabled then vape.Modules.Killaura:Toggle() end
-		if vape.Modules.GrandKillaura and vape.Modules.GrandKillaura.Enabled then vape.Modules.GrandKillaura:Toggle() end
-		if vape.Modules.SilentAura and vape.Modules.SilentAura.Enabled then vape.Modules.SilentAura:Toggle() end
+		if not GuiLibrary.ObjectsThatCanBeSaved["KillauraTog"] and GuiLibrary.ObjectsThatCanBeSaved["KillauraTog"].Api.Enabled then if GuiLibrary.ObjectsThatCanBeSaved["KillauraTog"] then GuiLibrary.ObjectsThatCanBeSaved["KillauraTog"].Api.ToggleButton() end end
+		if GuiLibrary.ObjectsThatCanBeSaved["GrandKillauraTog"] and GuiLibrary.ObjectsThatCanBeSaved["GrandKillauraTog"].Api.Enabled then GuiLibrary.ObjectsThatCanBeSaved["GrandKillauraTog"].Api.ToggleButton() end
+		if GuiLibrary.ObjectsThatCanBeSaved["SilentAuraTog"] and GuiLibrary.ObjectsThatCanBeSaved["SilentAuraTog"].Api.Enabled then GuiLibrary.ObjectsThatCanBeSaved["SilentAuraTog"].Api.ToggleButton() end
 		task.wait()
 		task.spawn(function()
-			local opts = vape.Modules.Killaura.Options
+			local opts = GuiLibrary.ObjectsThatCanBeSaved["KillauraTog"] and GuiLibrary.ObjectsThatCanBeSaved["KillauraTog"].Api.Options
 			local function ensureOff(name) if opts[name] and opts[name].Enabled then opts[name]:Toggle() end end
 			local function ensureOn(name) if opts[name] and not opts[name].Enabled then opts[name]:Toggle() end end
 			ensureOn('Targets'); ensureOff('Walls'); ensureOff('NPCs'); ensureOff('Invisible')
@@ -15799,7 +15799,7 @@ run(function()
 		end)
 	end
 
-	Autowin = vape.Categories.Minigames:CreateModule({
+	Autowin = GuiLibrary.ObjectsThatCanBeSaved.MinigamesWindow.Api.CreateOptionsButton({
 		Name = 'Autowin',
 		Function = function(callback)
 			repeat task.wait(0.08) until store.matchState~=0
@@ -15809,12 +15809,12 @@ run(function()
 				return
 			end
 			if not setup_aw() then
-				vape:CreateNotification("Vape", "Autowin requires Krystal kit!", 8, 'warning')
+				warningNotification("Vape", "Autowin requires Krystal kit!", 8)
 				Autowin:Toggle(false); return
 			end
 			lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
 			task.wait(playersService.RespawnTime or 3)
-			Autowin:Clean(runService.RenderStepped:Connect(function()
+			table.insert(Autowin.Connections, runService.RenderStepped:Connect(function()
 				if not bedwars then return end
 				pcall(function() bedwars.GlacialSkaterController:updateMomentum({momentum=9e9,lastMomentumReport=9e9},"newValue") end)
 			end))
@@ -15822,7 +15822,7 @@ run(function()
 			if #beds_aw<=1 then vape:CreateNotification("Autowin","Not enough beds to nuke!",6,'warning'); Autowin:Toggle(false); return end
 			configureBreaker_aw(); configureKillaura_aw()
 			tracker_aw.nuking = true
-			Autowin:Clean(lplr.CharacterAdded:Connect(function(char)
+			table.insert(Autowin.Connections, lplr.CharacterAdded:Connect(function(char)
 				task.wait(0.5)
 				local root = char:WaitForChild('HumanoidRootPart',5)
 				if root then
@@ -15921,7 +15921,7 @@ run(function()
 		end
 	end
 
-	Desync = vape.Categories.Blatant:CreateModule({
+	Desync = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
 		Name = "Desync",
 		Tooltip = "Uses various methods to desync your position",
 		Function = function(callback)
