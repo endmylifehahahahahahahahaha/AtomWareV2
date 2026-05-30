@@ -4814,7 +4814,7 @@ run(function()
 				end
 				task.spawn(function()
 					repeat
-						task.wait()
+						task.wait(1 / math.clamp(killauraAPS.Value, 1, 20))
 						if not Killaura.Enabled then break end
 						vapeTargetInfo.Targets.Killaura = nil
 						store.KillauraTarget = nil
@@ -5054,6 +5054,14 @@ run(function()
 		Max = 10,
 		Function = function(val) end,
 		Default = 0
+	})
+	local killauraAPS = Killaura.CreateSlider({
+		Name = "APS",
+		Min = 1,
+		Max = 20,
+		Function = function(val) end,
+		Default = 8,
+		HoverText = "Attacks Per Second - controls how fast KillAura attacks"
 	})
 	local animmethods = {}
 	for i,v in pairs(anims) do table.insert(animmethods, i) end
@@ -5322,6 +5330,127 @@ run(function()
 		Function = function(call)
 			sigridcheck = call
 		end
+	})
+end)
+
+-- Silent Aura: legit-style kill aura that attacks without visual indicators
+run(function()
+	local SilentAura = {Enabled = false}
+	local silentAuraRange = {Value = 8}
+	local silentAuraAPS = {Value = 4}
+	local silentAuraAngle = {Value = 180}
+	local silentAuraNearPlayer = false
+	local silentAuraRealRemote = {FireServer = function() end}
+	pcall(function()
+		silentAuraRealRemote = bedwars.Client:Get(bedwars.AttackRemote)
+		local oldFireServer = silentAuraRealRemote.FireServer
+		silentAuraRealRemote.FireServer = function(self, attackTable, ...)
+			return oldFireServer(self, attackTable, ...)
+		end
+	end)
+
+	SilentAura = GuiLibrary.ObjectsThatCanBeSaved.BlatantWindow.Api.CreateOptionsButton({
+		Name = "SilentAura",
+		HoverText = "Legit-style aura. Attacks silently without animations or visual tells.",
+		Function = function(callback)
+			if callback then
+				task.spawn(function()
+					repeat
+						task.wait(1 / math.clamp(silentAuraAPS.Value, 1, 20))
+						if not SilentAura.Enabled then break end
+						if not entityLibrary.isAlive then continue end
+
+						local plr = EntityNearPosition(silentAuraRange.Value, false)
+						if not plr then
+							silentAuraNearPlayer = false
+							continue
+						end
+
+						local root = plr.RootPart
+						if not root then continue end
+
+						-- angle check
+						local localfacing = entityLibrary.character.HumanoidRootPart.CFrame.LookVector
+						local vec = (root.Position - entityLibrary.character.HumanoidRootPart.Position).Unit
+						local angle = math.acos(math.clamp(localfacing:Dot(vec), -1, 1))
+						if angle >= (math.rad(silentAuraAngle.Value) / 2) then
+							silentAuraNearPlayer = false
+							continue
+						end
+
+						local sword, swordmeta = getAttackData()
+						if not sword or not swordmeta then continue end
+
+						pcall(switchItem, sword and sword.tool)
+
+						local selfrootpos = entityLibrary.character.HumanoidRootPart.Position
+						local selfpos = selfrootpos + (silentAuraRange.Value > 14
+							and (selfrootpos - root.Position).Magnitude > 14.4
+							and (CFrame.lookAt(selfrootpos, root.Position).LookVector * ((selfrootpos - root.Position).Magnitude - 14))
+							or Vector3.zero)
+
+						if (game.Workspace:GetServerTimeNow() - bedwars.SwordController.lastAttack) < 0.02 then
+							continue
+						end
+
+						silentAuraNearPlayer = true
+						bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
+						bedwars.SwordController.lastSwingServerTime = workspace:GetServerTimeNow()
+
+						store.attackReach = math.floor((selfrootpos - root.Position).Magnitude * 100) / 100
+						store.attackReachUpdate = tick() + 1
+
+						pcall(function()
+							silentAuraRealRemote:FireServer({
+								weapon = sword.tool,
+								chargedAttack = {chargeRatio = 0},
+								entityInstance = plr.Character,
+								validate = {
+									raycast = {
+										cameraPosition = attackValue(root.Position),
+										cursorDirection = attackValue(CFrame.new(selfpos, root.Position).LookVector)
+									},
+									targetPosition = attackValue(root.Position),
+									selfPosition = attackValue(selfpos)
+								},
+							})
+						end)
+					until not SilentAura.Enabled
+					silentAuraNearPlayer = false
+				end)
+			else
+				silentAuraNearPlayer = false
+			end
+		end
+	})
+
+	SilentAura.CreateTargetWindow({})
+
+	silentAuraRange = SilentAura.CreateSlider({
+		Name = "Range",
+		Min = 1,
+		Max = 30,
+		Function = function(val) end,
+		Default = 8,
+		HoverText = "Attack range for Silent Aura"
+	})
+
+	silentAuraAPS = SilentAura.CreateSlider({
+		Name = "APS",
+		Min = 1,
+		Max = 20,
+		Function = function(val) end,
+		Default = 4,
+		HoverText = "Attacks Per Second - keep low for legit appearance"
+	})
+
+	silentAuraAngle = SilentAura.CreateSlider({
+		Name = "Max Angle",
+		Min = 1,
+		Max = 360,
+		Function = function(val) end,
+		Default = 180,
+		HoverText = "Max angle to target. Lower = more legit"
 	})
 end)
 

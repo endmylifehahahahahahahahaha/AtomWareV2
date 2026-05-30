@@ -665,8 +665,8 @@ local function pload(fileName, isImportant, required)
         else
             task.spawn(function()
                 repeat task.wait() until errorNotification
-                if not string.find(res, "404: Not Found") then 
-                    errorNotification('Failure loading: '..baseDirectory..tostring(fileName), tostring(debug.traceback(err)), 7)
+                if not string.find(tostring(res or ""), "404: Not Found") then 
+                    errorNotification('Failure loading: '..baseDirectory..tostring(fileName), tostring(debug.traceback(tostring(err))), 7)
                 end
             end)
         end

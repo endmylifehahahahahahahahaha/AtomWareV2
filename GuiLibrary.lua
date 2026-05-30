@@ -4653,7 +4653,7 @@ if shared.VapeExecuted then
 				textbox.PlaceholderColor3 = Color3.fromRGB(200, 200, 200)
 				textbox.Font = Enum.Font.SourceSans
 				textbox.Text = ""
-				textbox.PlaceholderText = argstable["TempText"]
+				textbox.PlaceholderText = argstable["TempText"] or ""
 				textbox.TextSize = 17
 				textbox.Parent = textboxbkg
 				local addbutton = Instance.new("ImageButton")
@@ -4795,7 +4795,7 @@ if shared.VapeExecuted then
 				textbox.PlaceholderColor3 = Color3.fromRGB(200, 200, 200)
 				textbox.Font = Enum.Font.SourceSans
 				textbox.Text = ""
-				textbox.PlaceholderText = argstable["TempText"]
+				textbox.PlaceholderText = argstable["TempText"] or ""
 				textbox.TextSize = 17
 				textbox.Parent = textboxbkg
 
@@ -7050,7 +7050,7 @@ if shared.VapeExecuted then
 			textbox.PlaceholderColor3 = Color3.fromRGB(200, 200, 200)
 			textbox.Font = Enum.Font.SourceSans
 			textbox.Text = ""
-			textbox.PlaceholderText = argstable["TempText"]
+			textbox.PlaceholderText = argstable["TempText"] or ""
 			textbox.TextSize = 17
 			textbox.Parent = textboxbkg
 			local addbutton = Instance.new("ImageButton")
@@ -7190,7 +7190,7 @@ if shared.VapeExecuted then
 			textbox.PlaceholderColor3 = Color3.fromRGB(200, 200, 200)
 			textbox.Font = Enum.Font.SourceSans
 			textbox.Text = ""
-			textbox.PlaceholderText = argstable["TempText"]
+			textbox.PlaceholderText = argstable["TempText"] or ""
 			textbox.TextSize = 17
 			textbox.Parent = textboxbkg
 			local addbutton = Instance.new("ImageButton")
