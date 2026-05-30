@@ -14531,3 +14531,1427 @@ run(function()
     })
     ESPFriendly = ESPHealth.CreateToggle({ Name = "Show Teammates", Default = false, Function = function(v) ESPFriendly.Enabled = v end })
 end)
+
+-- ============================================================
+-- CUSTOM FEATURES (from customfeatures.lua)
+-- ============================================================
+
+-- SkinChanger
+run(function()
+	local SkinChanger
+	local Players = playersService
+	local RunService = runService
+	local LocalPlayer = Players.LocalPlayer
+	local RS = game.ReplicatedStorage
+
+	local CURRENT_ITEM_SKIN = "Victorious Lyla"
+	local CURRENT_SKIN_TYPE = "Nightmare"
+
+	local ok1, ItemType = pcall(function()
+		return require(RS.TS.item["item-type"]).ItemType
+	end)
+	if not ok1 then ItemType = {} end
+
+	local ok2, ItemSkinType = pcall(function()
+		return require(RS.TS.games.bedwars["item-skin"]["item-skin-types"]).ItemSkinType
+	end)
+	if not ok2 then ItemSkinType = {} end
+
+	local KitSkinCtrl
+	pcall(function()
+		local KC = require(RS.rbxts_include.node_modules["@easy-games"].knit.src).KnitClient
+		KitSkinCtrl = KC.Controllers.KitSkinController
+	end)
+
+	local BOW_ROT = CFrame.Angles(0, math.rad(-90), 0)
+	local CROSSBOW_ROT = CFrame.new(0, 0, 0) * CFrame.Angles(0, math.rad(-360), 0)
+	local LUNAR_CROSSBOW_ROT = CFrame.new(0, 0, 0) * CFrame.Angles(0, -190, math.rad(-180))
+	local VICTORIOUS_ARCHER_BOW_ROT = CFrame.new(0, 0, 0) * CFrame.Angles(0, -52, math.rad(90))
+	local VICTORIOUS_ARCHER_CROSSBOW_ROT = CFrame.new(0.00, 0.00, 0.00) * CFrame.Angles(math.rad(0), math.rad(80), math.rad(0.00))
+	local VICTORIOUS_ARCHER_HEADHUNTER_ROT = CFrame.new(0, 0, 0) * CFrame.Angles(0, math.rad(180), 0)
+	local HEADHUNTER_ROT = CFrame.new(0.4, 0, 0) * CFrame.Angles(0, math.rad(360), 0)
+	local AXE_ROT = CFrame.new(0, 0, -0.4) * CFrame.Angles(0, math.rad(90), 0)
+	local PICKAXE_ROT = CFrame.new(0, 0, -0.1) * CFrame.Angles(0, math.rad(110), 0)
+	local LASSO_ROT = CFrame.Angles(0, math.rad(90), 0)
+	local STAFF_ROT = CFrame.Angles(0, math.rad(90), 0)
+	local PIXEL_SWORD_ROT = CFrame.new(0, 0, 0) * CFrame.Angles(0, math.rad(-180), 0)
+	local SWORD_ROT = CFrame.new(0, -1.7, 0) * CFrame.Angles(0, math.rad(-180), 0)
+	local HEARTBEAM_SWORD_ROT = CFrame.new(0, -1.2, 0) * CFrame.Angles(0, math.rad(0), 0)
+	local LIFE_BOW_ROT = CFrame.Angles(0, math.rad(-20), 0)
+	local DAO_ROT = CFrame.new(0, -1.7, 0) * CFrame.Angles(0, math.rad(-180), 0)
+	local VIC_ROT = CFrame.new(0, -1.9, 0) * CFrame.Angles(0, math.rad(360), 0)
+	local HEXED_DAO_ROT = CFrame.new(0.00, 0.00, 0.00) * CFrame.Angles(math.rad(180.00), math.rad(-4.00), math.rad(0.00))
+	local SNOW_DAO_ROT = CFrame.new(-0.2, -0.9, 0) * CFrame.Angles(0, math.rad(-180), 0)
+	local HARPOON_ROT = CFrame.new(0, -1.4, -0.15) * CFrame.Angles(0, math.rad(180), 0)
+	local TRIDENT_ROT = CFrame.new(0, 0.5, 0.05) * CFrame.Angles(0, math.rad(180), 0)
+	local LYLA_BOW_ROT = CFrame.new(0, 0, 0) * CFrame.Angles(30, -30, 183.56)
+	local LYLA_CROSSBOW_ROT = CFrame.Angles(math.rad(0), math.rad(180), math.rad(0))
+	local LYLA_HEADHUNTER_ROT = CFrame.new(0, 0, 0) * CFrame.Angles(0, math.rad(0), 0)
+	local LYLA_FROST_CROSSBOW_ROT = CFrame.new(0.00, 0.00, 0.00) * CFrame.Angles(math.rad(180.00), math.rad(178.00), math.rad(0.00))
+
+	local CANNON_HAND_SCALE = 0.34
+	local CANNON_PLACED_OFFSET = CFrame.new(0, -1.0, 0)
+	local CANNON_TOOL_NAME = "cannon"
+
+	local CANNON_SKIN_NAMES = {
+		["Victorious Cannon"] = {
+			Gold = "cannon_gold_victorious", Platinum = "cannon_platinum_victorious",
+			Diamond = "cannon_diamond_victorious", Emerald = "cannon_emerald_victorious",
+			Nightmare = "cannon_nightmare_victorious",
+		},
+		["Ghost Cannon"] = { Default = "cannon_ghost" },
+		["Deep Sea Cannon"] = { Default = "cannon_deepsea" },
+	}
+
+	local CANNON_SOUND_NAMES = {
+		Gold = "CANNON_FIRE_VICTORIOUS_NIGHTMARE", Platinum = "CANNON_FIRE_VICTORIOUS_NIGHTMARE",
+		Diamond = "CANNON_FIRE_VICTORIOUS_DIAMOND", Emerald = "CANNON_FIRE_VICTORIOUS_EMERALD",
+		Nightmare = "CANNON_FIRE_VICTORIOUS_NIGHTMARE",
+	}
+
+	local SKIN_OFFSETS = {
+		["nightmare_victorious_flower_bow"] = LYLA_BOW_ROT, ["emerald_victorious_flower_bow"] = LYLA_BOW_ROT,
+		["diamond_victorious_flower_bow"] = LYLA_BOW_ROT, ["platinum_victorious_flower_bow"] = LYLA_BOW_ROT,
+		["gold_victorious_flower_bow"] = LYLA_BOW_ROT,
+		["nightmare_victorious_flower_crossbow"] = LYLA_CROSSBOW_ROT, ["emerald_victorious_flower_crossbow"] = LYLA_CROSSBOW_ROT,
+		["diamond_victorious_flower_crossbow"] = LYLA_CROSSBOW_ROT, ["platinum_victorious_flower_crossbow"] = LYLA_CROSSBOW_ROT,
+		["gold_victorious_flower_crossbow"] = LYLA_CROSSBOW_ROT,
+		["nightmare_victorious_flower_headhunter"] = LYLA_HEADHUNTER_ROT, ["emerald_victorious_flower_headhunter"] = LYLA_HEADHUNTER_ROT,
+		["diamond_victorious_flower_headhunter"] = LYLA_HEADHUNTER_ROT, ["platinum_victorious_flower_headhunter"] = LYLA_HEADHUNTER_ROT,
+		["gold_victorious_flower_headhunter"] = LYLA_HEADHUNTER_ROT,
+		["tactical_headhunter_victorious_nightmare"] = VICTORIOUS_ARCHER_HEADHUNTER_ROT,
+		["tactical_headhunter_victorious_emerald"] = VICTORIOUS_ARCHER_HEADHUNTER_ROT,
+		["tactical_headhunter_victorious_diamond"] = VICTORIOUS_ARCHER_HEADHUNTER_ROT,
+		["tactical_headhunter_victorious_platinum"] = VICTORIOUS_ARCHER_HEADHUNTER_ROT,
+		["tactical_headhunter_victorious_gold"] = VICTORIOUS_ARCHER_HEADHUNTER_ROT,
+		["flower_bow_frost_queen"] = BOW_ROT, ["tactical_crossbow_lunar_dragon"] = LUNAR_CROSSBOW_ROT,
+		["life_bow_mummy"] = LIFE_BOW_ROT, ["flower_headhunter_frost_queen"] = HEADHUNTER_ROT,
+		["flower_crossbow_frost_queen"] = LYLA_FROST_CROSSBOW_ROT,
+		["wood_sword_darkvalentine"] = SWORD_ROT, ["stone_sword_darkvalentine"] = SWORD_ROT,
+		["iron_sword_darkvalentine"] = SWORD_ROT, ["diamond_sword_darkvalentine"] = SWORD_ROT,
+		["emerald_sword_darkvalentine"] = SWORD_ROT,
+		["wood_sword_heartbeam"] = HEARTBEAM_SWORD_ROT, ["stone_sword_heartbeam"] = HEARTBEAM_SWORD_ROT,
+		["iron_sword_heartbeam"] = HEARTBEAM_SWORD_ROT, ["diamond_sword_heartbeam"] = HEARTBEAM_SWORD_ROT,
+		["emerald_sword_heartbeam"] = HEARTBEAM_SWORD_ROT,
+		["wood_bow_victorious_nightmare"] = VICTORIOUS_ARCHER_BOW_ROT, ["wood_bow_victorious_emerald"] = VICTORIOUS_ARCHER_BOW_ROT,
+		["wood_bow_victorious_diamond"] = VICTORIOUS_ARCHER_BOW_ROT, ["wood_bow_victorious_platinum"] = VICTORIOUS_ARCHER_BOW_ROT,
+		["wood_bow_victorious_gold"] = VICTORIOUS_ARCHER_BOW_ROT,
+		["tactical_crossbow_victorious_nightmare"] = VICTORIOUS_ARCHER_CROSSBOW_ROT,
+		["tactical_crossbow_victorious_emerald"] = VICTORIOUS_ARCHER_CROSSBOW_ROT,
+		["tactical_crossbow_victorious_diamond"] = VICTORIOUS_ARCHER_CROSSBOW_ROT,
+		["tactical_crossbow_victorious_platinum"] = VICTORIOUS_ARCHER_CROSSBOW_ROT,
+		["tactical_crossbow_victorious_gold"] = VICTORIOUS_ARCHER_CROSSBOW_ROT,
+		["life_crossbow_mummy"] = CROSSBOW_ROT, ["life_headhunter_mummy"] = HEADHUNTER_ROT,
+		["victorious_gold_triton"] = TRIDENT_ROT, ["victorious_platinum_triton"] = TRIDENT_ROT,
+		["victorious_diamond_triton"] = TRIDENT_ROT, ["victorious_emerald_triton"] = TRIDENT_ROT,
+		["victorious_nightmare_triton"] = TRIDENT_ROT, ["demon_triton"] = HARPOON_ROT,
+		["lasso_mummy"] = LASSO_ROT, ["lasso_wrangler_reindeer_lassy"] = LASSO_ROT, ["lasso_lifeguard"] = LASSO_ROT,
+		["wood_axe_darkvalentine"] = AXE_ROT, ["stone_axe_darkvalentine"] = AXE_ROT,
+		["iron_axe_darkvalentine"] = AXE_ROT, ["diamond_axe_darkvalentine"] = AXE_ROT,
+		["wood_axe_valentine"] = AXE_ROT, ["stone_axe_valentine"] = AXE_ROT,
+		["iron_axe_valentine"] = AXE_ROT, ["diamond_axe_valentine"] = AXE_ROT,
+		["wood_pickaxe_darkvalentine"] = PICKAXE_ROT, ["stone_pickaxe_darkvalentine"] = PICKAXE_ROT,
+		["iron_pickaxe_darkvalentine"] = PICKAXE_ROT, ["diamond_pickaxe_darkvalentine"] = PICKAXE_ROT,
+		["wood_pickaxe_valentine"] = PICKAXE_ROT, ["stone_pickaxe_valentine"] = PICKAXE_ROT,
+		["iron_pickaxe_valentine"] = PICKAXE_ROT, ["diamond_pickaxe_valentine"] = PICKAXE_ROT,
+		["gold_victorious_wizard_staff"] = STAFF_ROT, ["gold_victorious_wizard_staff_2"] = STAFF_ROT,
+		["gold_victorious_wizard_staff_3"] = STAFF_ROT, ["platinum_victorious_wizard_staff"] = STAFF_ROT,
+		["platinum_victorious_wizard_staff_2"] = STAFF_ROT, ["platinum_victorious_wizard_staff_3"] = STAFF_ROT,
+		["diamond_victorious_wizard_staff"] = STAFF_ROT, ["diamond_victorious_wizard_staff_2"] = STAFF_ROT,
+		["diamond_victorious_wizard_staff_3"] = STAFF_ROT, ["emerald_victorious_wizard_staff"] = STAFF_ROT,
+		["emerald_victorious_wizard_staff_2"] = STAFF_ROT, ["emerald_victorious_wizard_staff_3"] = STAFF_ROT,
+		["nightmare_victorious_wizard_staff"] = STAFF_ROT, ["nightmare_victorious_wizard_staff_2"] = STAFF_ROT,
+		["nightmare_victorious_wizard_staff_3"] = STAFF_ROT,
+		["wood_dao_victorious"] = VIC_ROT, ["stone_dao_victorious"] = VIC_ROT,
+		["iron_dao_victorious"] = VIC_ROT, ["diamond_dao_victorious"] = VIC_ROT, ["emerald_dao_victorious"] = VIC_ROT,
+		["wood_dao_cursed"] = HEXED_DAO_ROT, ["stone_dao_cursed"] = HEXED_DAO_ROT,
+		["iron_dao_cursed"] = HEXED_DAO_ROT, ["diamond_dao_cursed"] = HEXED_DAO_ROT, ["emerald_dao_cursed"] = HEXED_DAO_ROT,
+		["wood_dao_tiger"] = DAO_ROT, ["stone_dao_tiger"] = DAO_ROT,
+		["iron_dao_tiger"] = DAO_ROT, ["diamond_dao_tiger"] = DAO_ROT, ["emerald_dao_tiger"] = DAO_ROT,
+		["wood_dao_snow_rabbit"] = SNOW_DAO_ROT, ["stone_dao_snow_rabbit"] = SNOW_DAO_ROT,
+		["iron_dao_snow_rabbit"] = SNOW_DAO_ROT, ["diamond_dao_snow_rabbit"] = SNOW_DAO_ROT, ["emerald_dao_snow_rabbit"] = SNOW_DAO_ROT,
+		["wood_sword_pixel"] = PIXEL_SWORD_ROT, ["stone_sword_pixel"] = PIXEL_SWORD_ROT,
+		["iron_sword_pixel"] = PIXEL_SWORD_ROT, ["diamond_sword_pixel"] = PIXEL_SWORD_ROT, ["emerald_sword_pixel"] = PIXEL_SWORD_ROT,
+		["wood_sword_short_pixel"] = PIXEL_SWORD_ROT, ["stone_sword_short_pixel"] = PIXEL_SWORD_ROT,
+		["iron_sword_short_pixel"] = PIXEL_SWORD_ROT, ["diamond_sword_short_pixel"] = PIXEL_SWORD_ROT,
+		["emerald_sword_short_pixel"] = PIXEL_SWORD_ROT,
+	}
+
+	local KIT_SKIN_MAP = {
+		["Victorious Lyla"] = { Gold = "gold_victorious_lyla", Platinum = "platinum_victorious_lyla", Diamond = "diamond_victorious_lyla", Emerald = "emerald_victorious_lyla", Nightmare = "nightmare_victorious_lyla" },
+		["Frost Queen Lyla"] = { Default = "flower_bee_frost_queen" },
+		["Victorious Archer"] = { Gold = "archer_victorious_gold", Platinum = "archer_victorious_platinum", Diamond = "archer_victorious_diamond", Emerald = "archer_victorious_emerald", Nightmare = "archer_victorious_nightmare" },
+		["Lunar Dragon Archer"] = { Default = "archer_lunar_dragon" },
+		["Victorious Yuzi"] = { Default = "yuzi_victorious" }, ["Hexed Yuzi"] = { Default = "dasher_cursed" },
+		["Tiger Yuzi"] = { Default = "dasher_tiger" }, ["Snow Rabbit Yuzi"] = { Default = "dasher_snow_rabbit" },
+		["Victorious Zeno"] = { Gold = "gold_victorious_wizard", Platinum = "platinum_victorious_wizard", Diamond = "diamond_victorious_wizard", Emerald = "emerald_victorious_wizard", Nightmare = "nightmare_victorious_wizard" },
+		["Victorious Triton"] = { Gold = "victorious_gold_triton", Platinum = "victorious_platinum_triton", Diamond = "victorious_diamond_triton", Emerald = "victorious_emerald_triton", Nightmare = "victorious_nightmare_triton" },
+		["Demon Triton"] = { Default = "demon_triton" }, ["Mummy Life Bow"] = { Default = "mummy_nazar" },
+		["Mummy Lasso"] = { Default = "cowgirl_mummy" },
+		["Victorious Cannon"] = { Gold = "gold_victorious_davey", Platinum = "platinum_victorious_davey", Diamond = "diamond_victorious_davey", Emerald = "emerald_victorious_davey", Nightmare = "nightmare_victorious_davey" },
+		["Ghost Cannon"] = { Default = "davey_ghost" }, ["Deep Sea Cannon"] = { Default = "davey_deepsea" },
+	}
+
+	local STORE_SKIN_MAP = {
+		["Balloon Swords"] = function() return { { ItemType.WOOD_SWORD, ItemSkinType.BALLOON_WOOD_SWORD }, { ItemType.STONE_SWORD, ItemSkinType.BALLOON_STONE_SWORD }, { ItemType.IRON_SWORD, ItemSkinType.BALLOON_IRON_SWORD }, { ItemType.DIAMOND_SWORD, ItemSkinType.BALLOON_DIAMOND_SWORD }, { ItemType.EMERALD_SWORD, ItemSkinType.BALLOON_EMERALD_SWORD } } end,
+		["Banana Swords"] = function() return { { ItemType.WOOD_SWORD, ItemSkinType.BANANA_WOOD_SWORD }, { ItemType.STONE_SWORD, ItemSkinType.BANANA_STONE_SWORD }, { ItemType.IRON_SWORD, ItemSkinType.BANANA_IRON_SWORD }, { ItemType.DIAMOND_SWORD, ItemSkinType.BANANA_DIAMOND_SWORD }, { ItemType.EMERALD_SWORD, ItemSkinType.BANANA_EMERALD_SWORD } } end,
+		["Valentine Swords"] = function() return { { ItemType.WOOD_SWORD, ItemSkinType.VALENTINE_WOOD_SWORD }, { ItemType.STONE_SWORD, ItemSkinType.VALENTINE_STONE_SWORD }, { ItemType.IRON_SWORD, ItemSkinType.VALENTINE_IRON_SWORD }, { ItemType.DIAMOND_SWORD, ItemSkinType.VALENTINE_DIAMOND_SWORD }, { ItemType.EMERALD_SWORD, ItemSkinType.VALENTINE_EMERALD_SWORD } } end,
+		["Darkheart Swords"] = function() return { { ItemType.WOOD_SWORD, ItemSkinType.DARKVALENTINE_WOOD_SWORD }, { ItemType.STONE_SWORD, ItemSkinType.DARKVALENTINE_STONE_SWORD }, { ItemType.IRON_SWORD, ItemSkinType.DARKVALENTINE_IRON_SWORD }, { ItemType.DIAMOND_SWORD, ItemSkinType.DARKVALENTINE_DIAMOND_SWORD }, { ItemType.EMERALD_SWORD, ItemSkinType.DARKVALENTINE_EMERALD_SWORD } } end,
+		["Heartbeam Swords"] = function() return { { ItemType.WOOD_SWORD, ItemSkinType.HEARTBEAM_WOOD_SWORD }, { ItemType.STONE_SWORD, ItemSkinType.HEARTBEAM_STONE_SWORD }, { ItemType.IRON_SWORD, ItemSkinType.HEARTBEAM_IRON_SWORD }, { ItemType.DIAMOND_SWORD, ItemSkinType.HEARTBEAM_DIAMOND_SWORD }, { ItemType.EMERALD_SWORD, ItemSkinType.HEARTBEAM_EMERALD_SWORD } } end,
+		["Valentine Pickaxes"] = function() return { { ItemType.WOOD_PICKAXE, ItemSkinType.VALENTINE_WOOD_PICKAXE }, { ItemType.STONE_PICKAXE, ItemSkinType.VALENTINE_STONE_PICKAXE }, { ItemType.IRON_PICKAXE, ItemSkinType.VALENTINE_IRON_PICKAXE }, { ItemType.DIAMOND_PICKAXE, ItemSkinType.VALENTINE_DIAMOND_PICKAXE } } end,
+		["Darkheart Pickaxes"] = function() return { { ItemType.WOOD_PICKAXE, ItemSkinType.DARKVALENTINE_WOOD_PICKAXE }, { ItemType.STONE_PICKAXE, ItemSkinType.DARKVALENTINE_STONE_PICKAXE }, { ItemType.IRON_PICKAXE, ItemSkinType.DARKVALENTINE_IRON_PICKAXE }, { ItemType.DIAMOND_PICKAXE, ItemSkinType.DARKVALENTINE_DIAMOND_PICKAXE } } end,
+		["Valentine Axes"] = function() return { { ItemType.WOOD_AXE, ItemSkinType.VALENTINE_WOOD_AXE }, { ItemType.STONE_AXE, ItemSkinType.VALENTINE_STONE_AXE }, { ItemType.IRON_AXE, ItemSkinType.VALENTINE_IRON_AXE }, { ItemType.DIAMOND_AXE, ItemSkinType.VALENTINE_DIAMOND_AXE } } end,
+		["Darkheart Axes"] = function() return { { ItemType.WOOD_AXE, ItemSkinType.DARKVALENTINE_WOOD_AXE }, { ItemType.STONE_AXE, ItemSkinType.DARKVALENTINE_STONE_AXE }, { ItemType.IRON_AXE, ItemSkinType.DARKVALENTINE_IRON_AXE }, { ItemType.DIAMOND_AXE, ItemSkinType.DARKVALENTINE_DIAMOND_AXE } } end,
+		["Mummy Life Bow"] = function() return { { ItemType.LIFE_BOW, ItemSkinType.LIFE_BOW_MUMMY }, { ItemType.LIFE_CROSSBOW, ItemSkinType.LIFE_CROSSBOW_MUMMY }, { ItemType.LIFE_HEADHUNTER, ItemSkinType.LIFE_HEADHUNTER_MUMMY } } end,
+		["Mummy Lasso"] = function() return { { ItemType.LASSO, ItemSkinType.LASSO_MUMMY } } end,
+	}
+
+	local function yuziDaoMap(suffix)
+		return { wood_dao="wood_dao_"..suffix, stone_dao="stone_dao_"..suffix, iron_dao="iron_dao_"..suffix, diamond_dao="diamond_dao_"..suffix, emerald_dao="emerald_dao_"..suffix }
+	end
+
+	local SKIN_DATA = {
+		["Victorious Lyla"] = function(t) local lt=t:lower() return { flower_bow=lt.."_victorious_flower_bow", flower_crossbow=lt.."_victorious_flower_crossbow", flower_headhunter=lt.."_victorious_flower_headhunter" } end,
+		["Frost Queen Lyla"] = function() return { flower_bow="flower_bow_frost_queen", flower_crossbow="flower_crossbow_frost_queen", flower_headhunter="flower_headhunter_frost_queen" } end,
+		["Victorious Archer"] = function(t) local lt=t:lower() return { wood_bow="wood_bow_victorious_"..lt, tactical_crossbow="tactical_crossbow_victorious_"..lt, tactical_headhunter="tactical_headhunter_victorious_"..lt } end,
+		["Lunar Dragon Archer"] = function() return { wood_bow="wood_bow_lunar_dragon", tactical_crossbow="tactical_crossbow_lunar_dragon", tactical_headhunter="tactical_headhunter_lunar_dragon" } end,
+		["Victorious Triton"] = function(t) return { harpoon="victorious_"..t:lower().."_triton" } end,
+		["Demon Triton"] = function() return { harpoon="demon_triton" } end,
+		["Victorious Yuzi"] = function() return yuziDaoMap("victorious") end,
+		["Hexed Yuzi"] = function() return yuziDaoMap("cursed") end,
+		["Tiger Yuzi"] = function() return yuziDaoMap("tiger") end,
+		["Snow Rabbit Yuzi"] = function() return yuziDaoMap("snow_rabbit") end,
+		["Victorious Zeno"] = function(t) local lt=t:lower() return { wizard_staff=lt.."_victorious_wizard_staff", wizard_staff_2=lt.."_victorious_wizard_staff_2", wizard_staff_3=lt.."_victorious_wizard_staff_3" } end,
+		["Balloon Swords"] = function() return { wood_sword="balloon_wood_sword", stone_sword="balloon_stone_sword", iron_sword="balloon_iron_sword", diamond_sword="balloon_diamond_sword", emerald_sword="balloon_emerald_sword" } end,
+		["Banana Swords"] = function() return { wood_sword="banana_wood_sword", stone_sword="banana_stone_sword", iron_sword="banana_iron_sword", diamond_sword="banana_diamond_sword", emerald_sword="banana_emerald_sword" } end,
+		["Valentine Swords"] = function() return { wood_sword="wood_sword_valentine", stone_sword="stone_sword_valentine", iron_sword="iron_sword_valentine", diamond_sword="diamond_sword_valentine", emerald_sword="emerald_sword_valentine" } end,
+		["Darkheart Swords"] = function() return { wood_sword="wood_sword_darkvalentine", stone_sword="stone_sword_darkvalentine", iron_sword="iron_sword_darkvalentine", diamond_sword="diamond_sword_darkvalentine", emerald_sword="emerald_sword_darkvalentine" } end,
+		["Heartbeam Swords"] = function() return { wood_sword="wood_sword_heartbeam", stone_sword="stone_sword_heartbeam", iron_sword="iron_sword_heartbeam", diamond_sword="diamond_sword_heartbeam", emerald_sword="emerald_sword_heartbeam" } end,
+		["Valentine Pickaxes"] = function() return { wood_pickaxe="wood_pickaxe_valentine", stone_pickaxe="stone_pickaxe_valentine", iron_pickaxe="iron_pickaxe_valentine", diamond_pickaxe="diamond_pickaxe_valentine" } end,
+		["Darkheart Pickaxes"] = function() return { wood_pickaxe="wood_pickaxe_darkvalentine", stone_pickaxe="stone_pickaxe_darkvalentine", iron_pickaxe="iron_pickaxe_darkvalentine", diamond_pickaxe="diamond_pickaxe_darkvalentine" } end,
+		["Valentine Axes"] = function() return { wood_axe="wood_axe_valentine", stone_axe="stone_axe_valentine", iron_axe="iron_axe_valentine", diamond_axe="diamond_axe_valentine" } end,
+		["Darkheart Axes"] = function() return { wood_axe="wood_axe_darkvalentine", stone_axe="stone_axe_darkvalentine", iron_axe="iron_axe_darkvalentine", diamond_axe="diamond_axe_darkvalentine" } end,
+		["Mummy Lasso"] = function() return { lasso="lasso_mummy" } end,
+		["Mummy Life Bow"] = function() return { life_bow="life_bow_mummy", life_crossbow="life_crossbow_mummy", life_headhunter="life_headhunter_mummy" } end,
+		["Pixel Swords"] = function() return { wood_sword="wood_sword_pixel", stone_sword="stone_sword_pixel", iron_sword="iron_sword_pixel", diamond_sword="diamond_sword_pixel", emerald_sword="emerald_sword_pixel" } end,
+		["Pixel Swords Short"] = function() return { wood_sword="wood_sword_short_pixel", stone_sword="stone_sword_short_pixel", iron_sword="iron_sword_short_pixel", diamond_sword="diamond_sword_short_pixel", emerald_sword="emerald_sword_short_pixel" } end,
+	}
+
+	local TIERED_SKINS = { ["Victorious Lyla"]=true, ["Victorious Archer"]=true, ["Victorious Zeno"]=true, ["Victorious Triton"]=true, ["Victorious Cannon"]=true }
+
+	local function normalizeName(s) return s:lower():gsub("[_%s%-]","") end
+	local function isCannonSkin() return CANNON_SKIN_NAMES[CURRENT_ITEM_SKIN] ~= nil end
+	local function getCurrentCannonSkinName() local tbl=CANNON_SKIN_NAMES[CURRENT_ITEM_SKIN]; if not tbl then return nil end; return tbl[CURRENT_SKIN_TYPE] or tbl.Default end
+	local function getCannonSkinSource(skinName) local assets=RS:FindFirstChild("Assets"); if not assets then return nil end; local blocks=assets:FindFirstChild("Blocks"); if not blocks then return nil end; return blocks:FindFirstChild(skinName) end
+	local function getCurrentMappings() local fn=SKIN_DATA[CURRENT_ITEM_SKIN]; if not fn then return {} end; return fn(CURRENT_SKIN_TYPE) or {} end
+	local function getKitSkinValue() local m=KIT_SKIN_MAP[CURRENT_ITEM_SKIN]; if not m then return nil end; return m[CURRENT_SKIN_TYPE] or m.Default end
+	local function getStoreSkins() local fn=STORE_SKIN_MAP[CURRENT_ITEM_SKIN]; if not fn then return {} end; return fn() or {} end
+
+	local tagged = setmetatable({}, { __mode = "k" })
+	local sc_connections = {}
+	local invisConns = setmetatable({}, { __mode = "k" })
+	local oldGetKitSkin = nil
+	local savedStoreSkins = {}
+	local cannonTagged = setmetatable({}, { __mode = "k" })
+	local cannonConnections = {}
+	local cannonRenderConns = {}
+	local oldFireCannon, oldLaunchSelf
+	local soundsHooked = false
+
+	local function firstBasePart(root) for _,d in ipairs(root:GetDescendants()) do if d:IsA("BasePart") then return d end end end
+	local function makeInvisible(root) for _,d in ipairs(root:GetDescendants()) do if d:IsA("BasePart") then d.LocalTransparencyModifier=1; d.Transparency=1 elseif d:IsA("Decal") or d:IsA("Texture") then d.Transparency=1 end end end
+	local function restoreVisibility(root) for _,d in ipairs(root:GetDescendants()) do if d:IsA("BasePart") then d.LocalTransparencyModifier=0; d.Transparency=0 elseif d:IsA("Decal") or d:IsA("Texture") then d.Transparency=0 end end end
+	local function setNoCollide(model) for _,d in ipairs(model:GetDescendants()) do if d:IsA("BasePart") then d.CanCollide=false; d.CanTouch=false; d.CanQuery=false; d.Massless=true; d.Anchored=false end end end
+	local function weldAllTo(anchor, container) for _,d in ipairs(container:GetDescendants()) do if d:IsA("BasePart") and d~=anchor then local wc=Instance.new("WeldConstraint"); wc.Part0=anchor; wc.Part1=d; wc.Parent=anchor end end end
+	local function weldAllToPrimary(model) local primary=model.PrimaryPart; if not primary then return end; for _,d in ipairs(model:GetDescendants()) do if d:IsA("BasePart") and d~=primary then local wc=Instance.new("WeldConstraint"); wc.Part0=primary; wc.Part1=d; wc.Parent=primary end end end
+
+	local function startInvisibilityEnforcer(tool)
+		if invisConns[tool] then pcall(function() invisConns[tool]:Disconnect() end); invisConns[tool]=nil end
+		local conn
+		conn = RunService.RenderStepped:Connect(function()
+			if not tool or not tool.Parent then conn:Disconnect(); invisConns[tool]=nil; return end
+			local reskin = tool:FindFirstChild("LOCAL_ITEM_RESKIN")
+			for _,d in ipairs(tool:GetDescendants()) do
+				if reskin and d:IsDescendantOf(reskin) then continue end
+				if d:IsA("BasePart") then d.LocalTransparencyModifier=1; d.Transparency=1
+				elseif d:IsA("Decal") or d:IsA("Texture") then d.Transparency=1 end
+			end
+		end)
+		invisConns[tool] = conn
+		table.insert(sc_connections, conn)
+	end
+
+	local function attachReskin(tool, skinName)
+		if not tool or tagged[tool] then return end
+		tagged[tool] = true
+		local origHandle = tool:FindFirstChild("Handle")
+		if not (origHandle and origHandle:IsA("BasePart")) then origHandle = firstBasePart(tool) end
+		if not origHandle then tagged[tool]=nil; return end
+		local itemsFolder = RS:FindFirstChild("Items")
+		if not itemsFolder then tagged[tool]=nil; return end
+		local source = itemsFolder:FindFirstChild(skinName)
+		if not source then tagged[tool]=nil; return end
+		makeInvisible(tool)
+		local clone = source:Clone()
+		clone.Name = "LOCAL_ITEM_RESKIN"
+		for _,d in ipairs(clone:GetDescendants()) do if d:IsA("Script") or d:IsA("LocalScript") or d:IsA("ModuleScript") then pcall(d.Destroy,d) end end
+		setNoCollide(clone)
+		clone.Parent = tool
+		local cloneAnchor = clone:FindFirstChild("Handle")
+		if not (cloneAnchor and cloneAnchor:IsA("BasePart")) then
+			if clone:IsA("Model") then if not clone.PrimaryPart then local p=firstBasePart(clone); if p then pcall(function() clone.PrimaryPart=p end) end end; cloneAnchor=clone.PrimaryPart end
+			cloneAnchor = cloneAnchor or firstBasePart(clone)
+		end
+		if not cloneAnchor then clone:Destroy(); restoreVisibility(tool); tagged[tool]=nil; return end
+		pcall(function() cloneAnchor.CFrame=origHandle.CFrame end)
+		weldAllTo(cloneAnchor, clone)
+		local w = Instance.new("Weld")
+		w.Part0=origHandle; w.Part1=cloneAnchor; w.C0=SKIN_OFFSETS[skinName] or CFrame.identity; w.C1=CFrame.identity; w.Parent=cloneAnchor
+		startInvisibilityEnforcer(tool)
+	end
+
+	local function attachCannonReskin(targetRoot, posOffset, heldScale)
+		if not targetRoot or cannonTagged[targetRoot] then return end
+		cannonTagged[targetRoot] = true
+		local targetPart = targetRoot:FindFirstChild("Handle")
+		if not (targetPart and targetPart:IsA("BasePart")) then targetPart=firstBasePart(targetRoot) end
+		if not targetPart then cannonTagged[targetRoot]=nil; return end
+		local skinName = getCurrentCannonSkinName()
+		if not skinName then cannonTagged[targetRoot]=nil; return end
+		local source = getCannonSkinSource(skinName)
+		if not source then cannonTagged[targetRoot]=nil; return end
+		makeInvisible(targetRoot)
+		local clone = source:Clone()
+		clone.Name = "LOCAL_CANNON_RESKIN"
+		for _,d in ipairs(clone:GetDescendants()) do if d:IsA("Script") or d:IsA("LocalScript") or d:IsA("ModuleScript") then pcall(d.Destroy,d) end end
+		if not clone:IsA("Model") then setNoCollide(clone); clone.Parent=targetRoot; return end
+		if not clone.PrimaryPart then local p=firstBasePart(clone); if p then pcall(function() clone.PrimaryPart=p end) end end
+		if not clone.PrimaryPart then clone:Destroy(); cannonTagged[targetRoot]=nil; return end
+		if heldScale and heldScale~=1 then pcall(function() clone:ScaleTo(heldScale) end) end
+		setNoCollide(clone)
+		clone.Parent = targetRoot
+		pcall(function() clone:PivotTo(targetPart.CFrame * (posOffset or CFrame.identity)) end)
+		weldAllToPrimary(clone)
+		local wc = Instance.new("WeldConstraint")
+		wc.Part0=targetPart; wc.Part1=clone.PrimaryPart; wc.Parent=clone.PrimaryPart
+	end
+
+	local function hookCannonThirdPerson(character)
+		local function onChildAdded(child)
+			if not (child:IsA("Tool") and child.Name==CANNON_TOOL_NAME) then return end
+			task.wait()
+			local handle = child:FindFirstChild("Handle") or firstBasePart(child)
+			if not handle then return end
+			local existing = child:FindFirstChild("LOCAL_CANNON_RESKIN")
+			if existing then existing:Destroy(); cannonTagged[child]=nil end
+			attachCannonReskin(child, CFrame.identity, CANNON_HAND_SCALE)
+			local start = time()
+			local conn
+			conn = RunService.RenderStepped:Connect(function()
+				if not child.Parent then conn:Disconnect(); return end
+				makeInvisible(child)
+				if time()-start>3 then conn:Disconnect() end
+			end)
+			table.insert(cannonRenderConns, conn)
+		end
+		for _,c in ipairs(character:GetChildren()) do onChildAdded(c) end
+		local conn = character.ChildAdded:Connect(onChildAdded)
+		table.insert(cannonConnections, conn)
+	end
+
+	local function hookCannonViewmodel()
+		local cam = workspace.CurrentCamera
+		if not cam then return end
+		local function hookVM(vm)
+			for _,child in ipairs(vm:GetChildren()) do if child.Name==CANNON_TOOL_NAME then attachCannonReskin(child,CFrame.identity,CANNON_HAND_SCALE) end end
+			local conn = vm.ChildAdded:Connect(function(child) if child.Name==CANNON_TOOL_NAME then task.wait(); attachCannonReskin(child,CFrame.identity,CANNON_HAND_SCALE) end end)
+			table.insert(cannonConnections, conn)
+		end
+		local vm = cam:FindFirstChild("Viewmodel")
+		if vm then hookVM(vm) end
+		local conn = cam.ChildAdded:Connect(function(child) if child.Name=="Viewmodel" then task.wait(); hookVM(child) end end)
+		table.insert(cannonConnections, conn)
+	end
+
+	local function hookCannonContainer(container)
+		if not container then return end
+		for _,child in ipairs(container:GetChildren()) do if child.Name==CANNON_TOOL_NAME then attachCannonReskin(child,CFrame.identity,CANNON_HAND_SCALE) end end
+		local conn = container.ChildAdded:Connect(function(child) if child.Name==CANNON_TOOL_NAME then task.wait(); attachCannonReskin(child,CFrame.identity,CANNON_HAND_SCALE) end end)
+		table.insert(cannonConnections, conn)
+	end
+
+	local function hookCannonBlocksFolder(blocksFolder)
+		for _,child in ipairs(blocksFolder:GetChildren()) do if child.Name==CANNON_TOOL_NAME then attachCannonReskin(child,CANNON_PLACED_OFFSET,1) end end
+		local conn = blocksFolder.ChildAdded:Connect(function(child) if child.Name==CANNON_TOOL_NAME then task.wait(); attachCannonReskin(child,CANNON_PLACED_OFFSET,1) end end)
+		table.insert(cannonConnections, conn)
+	end
+
+	local function hookAllWorldCannons()
+		local map = workspace:FindFirstChild("Map"); if not map then return end
+		local worlds = map:FindFirstChild("Worlds"); if not worlds then return end
+		for _,world in ipairs(worlds:GetChildren()) do local blocks=world:FindFirstChild("Blocks"); if blocks then hookCannonBlocksFolder(blocks) end end
+		local conn = worlds.ChildAdded:Connect(function(world) task.wait(); local blocks=world:FindFirstChild("Blocks"); if blocks then hookCannonBlocksFolder(blocks) end end)
+		table.insert(cannonConnections, conn)
+	end
+
+	local function hookCannonSounds()
+		if soundsHooked then return end
+		if not (bedwars and bedwars.CannonHandController) then return end
+		soundsHooked = true
+		oldFireCannon = bedwars.CannonHandController.fireCannon
+		oldLaunchSelf = bedwars.CannonHandController.launchSelf
+		local function replaceSound()
+			for _,v in ipairs(workspace.SoundPool:GetChildren()) do if v:IsA("Sound") and v.SoundId=="rbxassetid://7121064180" then v:Destroy() end end
+			local key = CANNON_SOUND_NAMES[CURRENT_SKIN_TYPE] or CANNON_SOUND_NAMES.Nightmare
+			if bedwars.SoundManager and bedwars.SoundList and bedwars.SoundList[key] then bedwars.SoundManager:playSound(bedwars.SoundList[key]) end
+		end
+		bedwars.CannonHandController.fireCannon = function(...) replaceSound(); return oldFireCannon(...) end
+		bedwars.CannonHandController.launchSelf = function(...) replaceSound(); return oldLaunchSelf(...) end
+	end
+
+	local function unhookCannonSounds()
+		if soundsHooked and bedwars and bedwars.CannonHandController then
+			if oldFireCannon then bedwars.CannonHandController.fireCannon=oldFireCannon end
+			if oldLaunchSelf then bedwars.CannonHandController.launchSelf=oldLaunchSelf end
+		end
+		oldFireCannon=nil; oldLaunchSelf=nil; soundsHooked=false
+	end
+
+	local function cleanupCannons()
+		for _,c in pairs(cannonConnections) do pcall(function() c:Disconnect() end) end
+		for _,c in pairs(cannonRenderConns) do pcall(function() c:Disconnect() end) end
+		table.clear(cannonConnections); table.clear(cannonRenderConns)
+		for root in pairs(cannonTagged) do if root and root.Parent then local r=root:FindFirstChild("LOCAL_CANNON_RESKIN"); if r then r:Destroy() end; restoreVisibility(root) end end
+		table.clear(cannonTagged)
+		local map=workspace:FindFirstChild("Map")
+		if map then local worlds=map:FindFirstChild("Worlds"); if worlds then for _,world in ipairs(worlds:GetChildren()) do local blocks=world:FindFirstChild("Blocks"); if blocks then for _,child in ipairs(blocks:GetChildren()) do if child.Name==CANNON_TOOL_NAME then local r=child:FindFirstChild("LOCAL_CANNON_RESKIN"); if r then r:Destroy() end; restoreVisibility(child) end end end end end end
+		unhookCannonSounds()
+	end
+
+	local function applyKitSkinHook()
+		if not KitSkinCtrl then return end
+		local val = getKitSkinValue(); if not val then return end
+		if not oldGetKitSkin then oldGetKitSkin=KitSkinCtrl.getKitSkin end
+		KitSkinCtrl.getKitSkin = function(self, char) if char==LocalPlayer.Character then return val end; return oldGetKitSkin(self, char) end
+	end
+
+	local function removeKitSkinHook()
+		if KitSkinCtrl and oldGetKitSkin then KitSkinCtrl.getKitSkin=oldGetKitSkin; oldGetKitSkin=nil end
+	end
+
+	local function applyStoreSkins()
+		if not (bedwars and bedwars.Store) then return end
+		local skins=getStoreSkins(); savedStoreSkins={}
+		local state=bedwars.Store:getState()
+		for _,pair in ipairs(skins) do
+			if pair[1] and pair[2] then
+				local prev=state.Locker and state.Locker.selectedItemSkins and state.Locker.selectedItemSkins[pair[1]]
+				table.insert(savedStoreSkins, {pair[1], prev})
+				pcall(function() bedwars.Store:dispatch({type="LockerSetItemSkin", itemType=pair[1], itemSkin=pair[2]}) end)
+			end
+		end
+	end
+
+	local function clearStoreSkins()
+		if not (bedwars and bedwars.Store) then return end
+		for _,saved in ipairs(savedStoreSkins) do pcall(function() bedwars.Store:dispatch({type="LockerSetItemSkin", itemType=saved[1], itemSkin=saved[2]}) end) end
+		savedStoreSkins={}
+	end
+
+	local function tryApply(child)
+		if isCannonSkin() then return end
+		local mappings = getCurrentMappings()
+		local skinName = mappings[child.Name:lower()]
+		if not skinName then local childNorm=normalizeName(child.Name); for k,v in pairs(mappings) do if normalizeName(k)==childNorm then skinName=v; break end end end
+		if not skinName then return end
+		task.wait()
+		if child.Parent then attachReskin(child, skinName) end
+	end
+
+	local function hookViewmodel()
+		local cam = workspace.CurrentCamera; if not cam then return end
+		local function hookVM(vm)
+			for _,child in ipairs(vm:GetChildren()) do tryApply(child) end
+			table.insert(sc_connections, vm.ChildAdded:Connect(tryApply))
+		end
+		local vm = cam:FindFirstChild("Viewmodel"); if vm then hookVM(vm) end
+		table.insert(sc_connections, cam.ChildAdded:Connect(function(child) if child.Name=="Viewmodel" then task.wait(); hookVM(child) end end))
+	end
+
+	local function hookContainer(container)
+		if not container then return end
+		for _,child in ipairs(container:GetChildren()) do tryApply(child) end
+		table.insert(sc_connections, container.ChildAdded:Connect(tryApply))
+	end
+
+	local function cleanupDeadTagged()
+		for root in pairs(tagged) do if not root or not root.Parent then tagged[root]=nil end end
+		for tool in pairs(invisConns) do if not tool or not tool.Parent then pcall(function() invisConns[tool]:Disconnect() end); invisConns[tool]=nil end end
+	end
+
+	local function onCharacterAdded(character)
+		task.wait(0.2); cleanupDeadTagged(); applyKitSkinHook()
+		if isCannonSkin() then hookCannonContainer(LocalPlayer.Backpack); hookCannonContainer(character); hookCannonThirdPerson(character)
+		else hookContainer(LocalPlayer.Backpack); hookContainer(character) end
+	end
+
+	local function cleanup()
+		for tool,conn in pairs(invisConns) do pcall(function() conn:Disconnect() end) end; table.clear(invisConns)
+		for _,c in pairs(sc_connections) do pcall(function() c:Disconnect() end) end; table.clear(sc_connections)
+		for root in pairs(tagged) do if root and root.Parent then local r=root:FindFirstChild("LOCAL_ITEM_RESKIN"); if r then r:Destroy() end; restoreVisibility(root) end end
+		table.clear(tagged); removeKitSkinHook(); clearStoreSkins(); cleanupCannons()
+	end
+
+	local skinNames = {}
+	for name in pairs(SKIN_DATA) do table.insert(skinNames, name) end
+	for name in pairs(CANNON_SKIN_NAMES) do table.insert(skinNames, name) end
+	table.sort(skinNames)
+
+	local SkinTypeDropdown
+
+	SkinChanger = vape.Categories.Render:CreateModule({
+		Name = "SkinChanger",
+		Tooltip = "Client-sided item skin changer",
+		Function = function(enabled)
+			if enabled then
+				if isCannonSkin() then
+					hookCannonViewmodel(); hookAllWorldCannons(); hookCannonSounds(); applyKitSkinHook()
+					if LocalPlayer.Character then hookCannonContainer(LocalPlayer.Backpack); hookCannonContainer(LocalPlayer.Character); hookCannonThirdPerson(LocalPlayer.Character) end
+				else
+					hookViewmodel(); applyKitSkinHook(); applyStoreSkins()
+					if LocalPlayer.Character then onCharacterAdded(LocalPlayer.Character) end
+				end
+				table.insert(sc_connections, LocalPlayer.CharacterAdded:Connect(onCharacterAdded))
+			else
+				cleanup()
+			end
+		end,
+	})
+
+	SkinChanger:CreateDropdown({
+		Name = "Item Skin", List = skinNames, Default = CURRENT_ITEM_SKIN,
+		Function = function(val)
+			CURRENT_ITEM_SKIN = val
+			if SkinTypeDropdown and SkinTypeDropdown.Object then SkinTypeDropdown.Object.Visible = TIERED_SKINS[val]==true end
+			if SkinChanger.Enabled then SkinChanger:Toggle(); SkinChanger:Toggle() end
+		end,
+	})
+
+	SkinTypeDropdown = SkinChanger:CreateDropdown({
+		Name = "Skin Type", List = {"Gold","Platinum","Diamond","Emerald","Nightmare","Default"}, Default = CURRENT_SKIN_TYPE,
+		Function = function(val)
+			CURRENT_SKIN_TYPE = val
+			if SkinChanger.Enabled then SkinChanger:Toggle(); SkinChanger:Toggle() end
+		end,
+	})
+
+	task.defer(function()
+		if SkinTypeDropdown and SkinTypeDropdown.Object then SkinTypeDropdown.Object.Visible = TIERED_SKINS[CURRENT_ITEM_SKIN]==true end
+		if SkinTypeDropdown and SkinTypeDropdown.Set then SkinTypeDropdown:Set(CURRENT_SKIN_TYPE) end
+	end)
+end)
+
+
+-- OwlAura
+run(function()
+	local OwlAura
+	local Targets
+	local RangeSlider
+	local PROJECTILE_SPEED = 220
+	local SHOOT_COOLDOWN = 0.87
+	local lastShot = 0
+
+	local function getOwlModel() return workspace:FindFirstChild("ClientOwl") end
+	local function getBulletOrigin(owl)
+		local primary = owl and owl.PrimaryPart; if not primary then return nil end
+		local bo = primary:FindFirstChild("bulletOrigin"); return bo and bo.WorldPosition or primary.Position
+	end
+
+	local function fireOwlProjectile(fromPos, targetPos)
+		local owl = getOwlModel(); if not owl then return end
+		local owlHandle = owl:FindFirstChild("Handle") or owl.PrimaryPart; if not owlHandle then return end
+		local NetManaged = replicatedStorage:WaitForChild("rbxts_include"):WaitForChild("node_modules"):WaitForChild("@rbxts"):WaitForChild("net"):WaitForChild("out"):WaitForChild("_NetManaged")
+		local owlAiming = NetManaged:FindFirstChild("OwlAiming")
+		local owlFireProjectile = NetManaged:FindFirstChild("OwlFireProjectile")
+		if not owlAiming or not owlFireProjectile then return end
+		local direction = (targetPos - fromPos).Unit * PROJECTILE_SPEED
+		local refId = httpService:GenerateGUID(false):sub(1,8):upper()
+		owlAiming:FireServer({owl=owlHandle, starting=true})
+		task.wait(0.05)
+		owlAiming:FireServer({owl=owlHandle, starting=false})
+		owlFireProjectile:FireServer({fromPosition=fromPos, direction=direction, offset=nil, ProjectileRefId=refId, initialVelocity=direction})
+	end
+
+	OwlAura = vape.Categories.Blatant:CreateModule({
+		Name = 'OwlAura',
+		Tooltip = 'Auto shoots at nearby enemies with your owl',
+		Function = function(callback)
+			if callback then
+				OwlAura:Clean(runService.Heartbeat:Connect(function()
+					if tick()-lastShot < SHOOT_COOLDOWN then return end
+					if not entitylib.isAlive then return end
+					local owl = getOwlModel()
+					local myRoot = lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart")
+					if not myRoot then return end
+					local fromPos = owl and getBulletOrigin(owl) or myRoot.Position
+					local ent = entitylib.EntityPosition({
+						Range = RangeSlider and RangeSlider.Value or 40,
+						Part = 'RootPart', Origin = fromPos,
+						Wallcheck = Targets.Walls.Enabled,
+						Players = Targets.Players.Enabled,
+						NPCs = Targets.NPCs.Enabled,
+					})
+					if not ent or not ent.RootPart then return end
+					local rootPos = ent.RootPart.Position
+					local vel = ent.RootPart.AssemblyLinearVelocity
+					local dist = (fromPos - rootPos).Magnitude
+					local predictedPos = rootPos + vel * (dist / PROJECTILE_SPEED)
+					lastShot = tick()
+					fireOwlProjectile(fromPos, predictedPos)
+				end))
+			end
+		end
+	})
+
+	Targets = OwlAura:CreateTargets({})
+	RangeSlider = OwlAura:CreateSlider({
+		Name = 'Range', Min = 10, Max = 60, Default = 40,
+		Suffix = function(val) return val==1 and 'stud' or 'studs' end
+	})
+end)
+
+
+-- KrystalDisabler
+run(function()
+	local KrystalDisabler
+	local old_kd = nil
+	local renderConn_kd = nil
+	local bedwarsCtrl_kd = nil
+
+	local function setup_kd()
+		local ok, Knit = pcall(function()
+			return require(game.ReplicatedStorage.rbxts_include.node_modules['@easy-games'].knit.src).KnitClient
+		end)
+		if not ok or not Knit.Controllers.GlacialSkaterController then return false end
+		if store.equippedKit ~= 'glacial_skater' then return false end
+		local Client = require(game.ReplicatedStorage.TS.remotes).default.Client
+		bedwarsCtrl_kd = { GlacialSkaterController = Knit.Controllers.GlacialSkaterController }
+		old_kd = bedwarsCtrl_kd.GlacialSkaterController.updateMomentum
+		bedwarsCtrl_kd.GlacialSkaterController.updateMomentum = function(self, ...)
+			self.momentum = 9e9; self.lastMomentumReport = 9e9
+			pcall(function() Client:Get('MomentumUpdate'):SendToServer({momentumValue=9e9}) end)
+		end
+		return true
+	end
+
+	KrystalDisabler = vape.Categories.Blatant:CreateModule({
+		Name = 'KrystalDisabler',
+		Tooltip = 'Requires Krystal kit.',
+		Function = function(callback)
+			if callback then
+				local ok = setup_kd()
+				if not ok then
+					vape:CreateNotification("KrystalDisabler", "Not on Krystal kit!", 5, 'alert')
+					KrystalDisabler:Toggle()
+					return
+				end
+				renderConn_kd = runService.RenderStepped:Connect(function()
+					if not bedwarsCtrl_kd then return end
+					pcall(function() bedwarsCtrl_kd.GlacialSkaterController:updateMomentum(9e9, 'newValue') end)
+				end)
+				vape:CreateNotification("KrystalDisabler", "Reset to use disabler", 5)
+			else
+				if renderConn_kd then renderConn_kd:Disconnect(); renderConn_kd=nil end
+				if bedwarsCtrl_kd and old_kd then bedwarsCtrl_kd.GlacialSkaterController.updateMomentum=old_kd; old_kd=nil end
+				bedwarsCtrl_kd = nil
+			end
+		end
+	})
+end)
+
+
+-- BackTrack
+run(function()
+	local BackTrack
+	local Mode
+	local Delay
+
+	local OldGet_bt
+	local enabled_bt
+	local posHistory = {}
+	local rakhookLoop = nil
+	local rakNet_bt = (typeof(raknet) == 'table' or false)
+
+	local function hook_bt(pckt)
+		if pckt.AsArray[1] == 0x1b then
+			local data = pckt.AsBuffer
+			buffer.writeu32(data, 1, 0xFFFFFFFF)
+			pckt:SetData(data)
+		end
+	end
+
+	local function getTargetRoot_bt()
+		local bestPlayer, bestDot, nearestDist = nil, -2, math.huge
+		if not entitylib or not lplr.Character or not lplr.Character:FindFirstChild('HumanoidRootPart') then return nil end
+		if not entitylib.isAlive then return nil end
+		for _, ent in entitylib.List do
+			if ent.Player ~= lplr and ent.Character then
+				local root = ent.Character:FindFirstChild('HumanoidRootPart')
+				if root then
+					local dir = (root.Position - lplr.Character.HumanoidRootPart.Position).Unit
+					local dot = dir:Dot(gameCamera.CFrame.LookVector)
+					if dot > bestDot and dot > 0.5 then bestDot=dot; bestPlayer=root end
+					if not bestPlayer then
+						local dist = (root.Position - lplr.Character.HumanoidRootPart.Position).Magnitude
+						if dist < nearestDist then nearestDist=dist; bestPlayer=root end
+					end
+				end
+			end
+		end
+		return bestPlayer
+	end
+
+	local function calculateDynamicDelay()
+		local targetRoot = getTargetRoot_bt(); if not targetRoot then return 0.2 end
+		if not entitylib.isAlive or not entitylib.RootPart then return 0.2 end
+		local selfpos = lplr.Character.HumanoidRootPart.Position
+		local distance = (selfpos - targetRoot.Position).Magnitude
+		local ping = 0.1
+		local suc, res = pcall(function() ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()/1000 end)
+		if not suc then ping = lplr:GetNetworkPing() end
+		return math.clamp(0.2 + ping*1.5 + math.clamp((distance-12)/20, 0, 0.3), 0.1, 0.5)
+	end
+
+	local function getHistorialPos(ago)
+		local currentTime = tick(); local targetTime = currentTime - ago
+		local best, bestDiff = nil, math.huge
+		for _, entry in ipairs(posHistory) do
+			local diff = math.abs(entry.time - targetTime) * math.pi
+			if diff < bestDiff then bestDiff=diff; best=entry.pos end
+		end
+		return best
+	end
+
+	local function startFetching()
+		BackTrack:Clean(runService.RenderStepped:Connect(function()
+			local targetRoot = getTargetRoot_bt()
+			if targetRoot then
+				table.insert(posHistory, {time=tick(), pos=targetRoot.Position})
+				if #posHistory > 200 then table.remove(posHistory, 1) end
+			end
+		end))
+	end
+
+	local function hookClient_bt()
+		if OldGet_bt then return end
+		OldGet_bt = bedwars.Client.Get
+		bedwars.Client.Get = function(self, remoteName)
+			local call = OldGet_bt(self, remoteName)
+			if remoteName == 'SwordHit' then
+				return {
+					instance = call.instance,
+					SendToServer = function(_, attackTable, ...)
+						if Mode.Value == 'Repel' then
+							local selfpos = lplr.Character.HumanoidRootPart.Position
+							local targetpos = getTargetRoot_bt()
+							if targetpos then
+								targetpos = targetpos.Position
+								local dist = (selfpos - targetpos).Magnitude
+								if dist >= 14.388 then
+									attackTable.validate = attackTable.validate or {}
+									attackTable.validate.selfPosition = attackTable.validate.selfPosition or {value=selfpos}
+									attackTable.validate.selfPosition.value += CFrame.lookAt(selfpos, targetpos).LookVector * (dist - 14.388)
+								end
+							end
+						elseif Mode.Value == 'Default' then
+							local oldpos_bt = getHistorialPos(Delay.Value/1000)
+							if oldpos_bt then
+								attackTable.validate = attackTable.validate or {}
+								attackTable.validate.targetPosition = attackTable.validate.targetPosition or {value=oldpos_bt}
+								attackTable.validate.targetPosition.value = oldpos_bt
+							end
+						elseif Mode.Value == 'Dynamic' then
+							local dynDelay = calculateDynamicDelay()
+							local oldPos_bt = getHistorialPos(dynDelay)
+							if oldPos_bt then
+								attackTable.validate = attackTable.validate or {}
+								attackTable.validate.targetPosition = attackTable.validate.targetPosition or {value=oldPos_bt}
+								attackTable.validate.targetPosition.value = oldPos_bt
+							end
+						end
+						return call:SendToServer(attackTable, ...)
+					end
+				}
+			end
+			return call
+		end
+	end
+
+	local function unHookClient_bt()
+		if OldGet_bt then bedwars.Client.Get=OldGet_bt; OldGet_bt=nil end
+	end
+
+	local function startRaknetLoop()
+		if rakhookLoop then return end
+		if not rakNet_bt then return end
+		rakhookLoop = runService.Heartbeat:Connect(function()
+			if not enabled_bt then return end
+			local tme = Delay.Value/1000
+			raknet.add_send_hook(hook_bt)
+			task.delay(tme, function() if rakhookLoop then raknet.remove_send_hook(hook_bt) end end)
+			rakhookLoop:Disconnect(); rakhookLoop=nil
+			task.wait(tme)
+			if enabled_bt then startRaknetLoop() end
+		end)
+	end
+
+	local function stopRaknetLoop()
+		if rakhookLoop then rakhookLoop:Disconnect(); rakhookLoop=nil end
+		if rakNet_bt then pcall(function() raknet.remove_send_hook(hook_bt) end) end
+	end
+
+	BackTrack = vape.Categories.World:CreateModule({
+		Name = 'BackTrack',
+		Tooltip = 'Manipulates server movement reports to be delayed',
+		Function = function(callback)
+			if callback then
+				if not rakNet_bt then
+					vape:CreateNotification("Vape", "Raknet not found. BackTrack requires raknet.", 16)
+					vape:Remove('BackTrack')
+					return
+				end
+				vape:CreateNotification("Vape", "Raknet found! Using server-side packet modifications.", 24)
+				enabled_bt = true
+				startFetching(); hookClient_bt(); startRaknetLoop()
+			else
+				enabled_bt = false
+				unHookClient_bt(); stopRaknetLoop()
+			end
+		end
+	})
+
+	Mode = BackTrack:CreateDropdown({
+		Name = "Mode", List = {"Repel","Dynamic","Default"}, Default = "Default",
+		Function = function(val) if val=="Default" or val=="Dynamic" then startFetching() end end
+	})
+
+	Delay = BackTrack:CreateSlider({
+		Name = "Delay", Min = 0, Max = 10000, Default = math.random(2500,4500), Suffix = "ms"
+	})
+end)
+
+
+-- SilentAura
+run(function()
+	local SilentAura
+	local Targets_sa
+	local AimSpeed_sa
+	local AimSmoothness_sa
+	local AimShake_sa
+	local AimShakeValue_sa
+	local Angle_sa
+	local Sort_sa
+	local SyncHits_sa
+	local Mouse_sa
+	local Swing_sa
+	local SilentAim_sa
+	local Limit_sa
+	local TargetArea_sa
+	local ChargeTime_sa
+	local ChargeTimeSlider_sa
+	local UpdateRate_sa
+	local ExtendAttackRange_sa
+	local ExtendSwingRange_sa
+
+	local defaultAttackRange = 12.6
+	local defaultSwingRange = 14.4
+	local lastAttackTime_sa = 0
+	local Attacking_sa = false
+	local swingCooldown_sa = 0
+	local rng_sa = Random.new()
+	local SyncChecks_sa = { ViewSwing = false, ThirdSwing = false }
+	local lastAnimationTime_sa = 0
+	local isClaw_sa = false
+	local lastCharge_sa = tick()
+	local lc_sa = 0
+
+	local AttackRemote_sa = nil
+	local suc_sa, res_sa = pcall(function() AttackRemote_sa = bedwars.Client:Get('SwordHit') end)
+
+	local kitChecks_sa = {
+		['Sophia'] = function() return isFrozen(nil, 10) end,
+		['Sigrid'] = function() return entitylib.isAlive and lplr.Character and lplr.Character:FindFirstChild('elk')~=nil end,
+	}
+
+	local function setupAnimationTracking_sa()
+		if not getgenv().oldViewModelKA_sa then getgenv().oldViewModelKA_sa = bedwars.ViewmodelController.playAnimation end
+		bedwars.ViewmodelController.playAnimation = function(...)
+			local call = {...}; local id = select(2, ...)
+			if id==15 or id=='15' or id==16 or id=='16' then
+				SyncChecks_sa.ViewSwing=true; lastAnimationTime_sa=tick()
+				task.delay(0.2, function() SyncChecks_sa.ViewSwing=false end)
+			end
+			return getgenv().oldViewModelKA_sa(unpack(call))
+		end
+		if not getgenv().oldSwordCtlerKA_sa then getgenv().oldSwordCtlerKA_sa = bedwars.SwordController.playSwordEffect end
+		bedwars.SwordController.playSwordEffect = function(...)
+			local call = {...}; SyncChecks_sa.ThirdSwing=true; lastAnimationTime_sa=tick()
+			task.delay(0.2, function() SyncChecks_sa.ThirdSwing=false end)
+			return getgenv().oldSwordCtlerKA_sa(unpack(call))
+		end
+	end
+
+	local function getAttackData_sa()
+		local stunTime = lplr.Character and lplr.Character:GetAttribute('StunnedUntilTime')
+		if stunTime and stunTime > workspace:GetServerTimeNow() then return false end
+		for _,check in pairs(kitChecks_sa) do if check() then return false end end
+		if bedwars.SummonerKitController:isPlayerCastingSpell(lplr) then return false end
+		if Mouse_sa and Mouse_sa.Enabled then
+			local recentSwing = (tick()-bedwars.SwordController.lastSwing)<=0.2
+			if not recentSwing and not inputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then return false end
+		end
+		if bedwars.AppController:isLayerOpen(bedwars.UILayers.MAIN) then return false end
+		local sword = Limit_sa and Limit_sa.Enabled and store.hand or store.tools.sword
+		if not sword or not sword.tool then return false end
+		if Limit_sa and Limit_sa.Enabled and (store.hand.toolType~='sword' or bedwars.DaoController.chargingMaid) then return false end
+		if SyncHits_sa and SyncHits_sa.Enabled then return sword, bedwars.ItemMeta[sword.tool.Name], true
+		else
+			local chargeTimeValue = (ChargeTime_sa and ChargeTime_sa.Enabled and ChargeTimeSlider_sa and ChargeTimeSlider_sa.Value) or 0.38
+			return sword, bedwars.ItemMeta[sword.tool.Name], (tick()-lastAttackTime_sa)>=chargeTimeValue
+		end
+	end
+
+	local function playSwordAnimation_sa(meta)
+		if not meta then return end
+		pcall(function()
+			if isClaw_sa then bedwars.SummonerClawController:clawAttack(lplr.Character)
+			else
+				bedwars.SwordController:playSwordEffect(meta, false)
+				if meta.displayName and meta.displayName:find(' Scythe') then bedwars.ScytheController:playLocalAnimation() end
+			end
+		end)
+	end
+
+	local function SilentAimFunc_sa(ent, dt)
+		if not SilentAim_sa or not SilentAim_sa.Enabled or not ent or not ent.RootPart then return end
+		local root = entitylib.character.RootPart
+		local aimPos
+		if TargetArea_sa and TargetArea_sa.Value=='Head' then
+			local head = ent.Character and ent.Character:FindFirstChild('Head')
+			aimPos = head and head.Position or ent.RootPart.Position + Vector3.new(0,2.5,0)
+		else aimPos = ent.RootPart.Position + Vector3.new(0,2,0) end
+		local noise = (rng_sa:NextNumber()-0.5) * (AimShake_sa and AimShake_sa.Enabled and AimShakeValue_sa and AimShakeValue_sa.Value/8 or 1.2)
+		aimPos += Vector3.new(noise*0.6, noise*0.3+(rng_sa:NextNumber()-0.5)*0.4, noise*0.6)
+		local baseSpeed = (AimSpeed_sa and AimSpeed_sa.Value or 4.2)/10
+		local smoothness = (AimSmoothness_sa and AimSmoothness_sa.Value or 12)/30
+		local speed = math.clamp(baseSpeed*(1-smoothness)+0.11, 0.07, 0.89)
+		local targetCFrame = CFrame.lookAt(gameCamera.CFrame.Position, aimPos)
+		gameCamera.CFrame = gameCamera.CFrame:Lerp(targetCFrame, speed)
+	end
+
+	SilentAura = vape.Categories.Combat:CreateModule({
+		Name = 'SilentAura',
+		Tooltip = 'Legit killaura',
+		Function = function(callback)
+			if callback then
+				if not suc_sa then
+					vape:CreateNotification('Vape', 'Remote fetch failed. Using fallback.', 16, 'warning')
+					AttackRemote_sa = { SendToServer = function(...) local args={...}; replicatedStorage:FindFirstChild("rbxts_include"):FindFirstChild("node_modules"):FindFirstChild("@rbxts"):FindFirstChild("net"):FindFirstChild("out"):FindFirstChild("_NetManaged"):FindFirstChild("SwordHit"):FireServer(unpack(args)) end }
+				else AttackRemote_sa = res_sa end
+				if vape.Modules.Killaura and vape.Modules.Killaura.Enabled then vape.Modules.Killaura:Toggle() end
+				if vape.Modules.GrandKillaura and vape.Modules.GrandKillaura.Enabled then vape.Modules.GrandKillaura:Toggle() end
+				setupAnimationTracking_sa()
+				local currentTarget_sa, lastTargetSwitch_sa, lastAttack_sa = nil, 0, 0
+				SilentAura:Clean(runService.Heartbeat:Connect(function(dt)
+					if not entitylib.isAlive then return end
+					local root = entitylib.character.RootPart; if not root then return end
+					local swingRange = defaultSwingRange + (ExtendSwingRange_sa and ExtendSwingRange_sa.Value or 0)
+					local Plrs = entitylib.AllPosition({ Range=swingRange, Wallcheck=Targets_sa and Targets_sa.Walls.Enabled, Part='RootPart', Players=Targets_sa and Targets_sa.Players.Enabled, NPCs=Targets_sa and Targets_sa.NPCs.Enabled, Limit=1 })
+					if #Plrs > 0 then
+						local best = Plrs[1]
+						if best~=currentTarget_sa and (tick()-lastTargetSwitch_sa)>0.12 then
+							if currentTarget_sa and math.random(1,100)<=28 then return end
+							currentTarget_sa=best; lastTargetSwitch_sa=tick()
+						end
+					else currentTarget_sa=nil end
+					if not currentTarget_sa or not currentTarget_sa.RootPart then Attacking_sa=false; store.SilentauraTarget=nil; return end
+					Attacking_sa=true; store.SilentauraTarget=currentTarget_sa
+					SilentAimFunc_sa(currentTarget_sa, dt)
+					local ent = currentTarget_sa
+					local delta = ent.RootPart.Position - root.Position
+					local distance = delta.Magnitude
+					local sword, meta, canAttack = getAttackData_sa()
+					local attackRange = defaultAttackRange + (ExtendAttackRange_sa and ExtendAttackRange_sa.Value or 0)
+					if sword and canAttack and distance<=attackRange then
+						switchItem(sword.tool, 0)
+						local now = tick()
+						local minDelay = (SyncHits_sa and SyncHits_sa.Enabled) and 0.12 or ((ChargeTime_sa and ChargeTime_sa.Enabled and ChargeTimeSlider_sa and ChargeTimeSlider_sa.Value) or 0.38)
+						if (now-lastAttack_sa) >= minDelay + rng_sa:NextNumber(0, 0.065) then
+							if math.random(1,100)<=9 then lastAttack_sa=now+0.08; return end
+							if SyncHits_sa and SyncHits_sa.Enabled then
+								playSwordAnimation_sa(meta); task.wait(lplr:GetNetworkPing())
+								if not SyncChecks_sa.ViewSwing and not SyncChecks_sa.ThirdSwing then task.wait(0.03) end
+							else if not (Swing_sa and Swing_sa.Enabled) then playSwordAnimation_sa(meta) end end
+							local camPos = gameCamera.CFrame.Position
+							local dir = (ent.RootPart.Position - camPos).Unit
+							lastAttack_sa=now; lastAttackTime_sa=now
+							lc_sa=lastCharge_sa; lastCharge_sa=tick()-lc_sa
+							local attackData = {
+								weapon=sword.tool, entityInstance=ent.Character,
+								chargedAttack={chargeRatio=lastCharge_sa},
+								validate={
+									raycast={cameraPosition={value=camPos}, cursorDirection={value=dir}},
+									targetPosition={value=ent.RootPart.Position},
+									selfPosition={value=root.Position}
+								}
+							}
+							pcall(function() lastCharge_sa=tick(); bedwars.Client:Get('SwordHit'):SendToServer(attackData) end)
+							targetinfo.Targets[ent] = now+1
+						end
+					end
+				end))
+			else
+				Attacking_sa=false; store.SilentauraTarget=nil
+				if getgenv().oldViewModelKA_sa then bedwars.ViewmodelController.playAnimation=getgenv().oldViewModelKA_sa end
+				if getgenv().oldSwordCtlerKA_sa then bedwars.SwordController.playSwordEffect=getgenv().oldSwordCtlerKA_sa end
+			end
+		end
+	})
+
+	repeat task.wait(0.08) until SilentAura
+
+	Targets_sa = SilentAura:CreateTargets({ Players=true, Walls=true })
+	SilentAim_sa = SilentAura:CreateToggle({ Name='Silent Aim', Default=true, Function=function(c) if AimSpeed_sa then AimSpeed_sa.Object.Visible=c end; if AimSmoothness_sa then AimSmoothness_sa.Object.Visible=c end; if AimShake_sa then AimShake_sa.Object.Visible=c end; if TargetArea_sa then TargetArea_sa.Object.Visible=c end end })
+	TargetArea_sa = SilentAura:CreateDropdown({ Name='Target Area', List={'RootPart','Head'}, Visible=true })
+	AimSpeed_sa = SilentAura:CreateSlider({ Name="Aim Speed", Min=1, Max=10, Default=4.2, Visible=true })
+	AimSmoothness_sa = SilentAura:CreateSlider({ Name="Aim Smoothness", Min=1, Max=30, Default=13, Visible=true })
+	AimShake_sa = SilentAura:CreateToggle({ Name="Aim Shake", Default=true, Visible=true, Function=function(c) if AimShakeValue_sa then AimShakeValue_sa.Object.Visible=c end end })
+	AimShakeValue_sa = SilentAura:CreateSlider({ Name="Shake Amount", Min=1, Max=12, Default=3.5, Visible=true })
+	SyncHits_sa = SilentAura:CreateToggle({ Name='Sync Hits', Default=false, Tooltip='Syncs attacks with sword animations', Function=function(c) if ChargeTime_sa then ChargeTime_sa.Object.Visible=not c end; if ChargeTimeSlider_sa then ChargeTimeSlider_sa.Object.Visible=not c end end })
+	ChargeTime_sa = SilentAura:CreateToggle({ Name='Custom Charge Time', Default=true, Visible=true, Function=function(c) if ChargeTimeSlider_sa then ChargeTimeSlider_sa.Object.Visible=c and not (SyncHits_sa and SyncHits_sa.Enabled) end end })
+	ChargeTimeSlider_sa = SilentAura:CreateSlider({ Name='Charge Time Value', Min=0.1, Max=1, Default=0.38, Decimal=100, Suffix='s', Visible=true })
+	Mouse_sa = SilentAura:CreateToggle({ Name="Require Mouse down" })
+	Swing_sa = SilentAura:CreateToggle({ Name="Swing Only", Tooltip="Only swings visually, doesn't attack" })
+	Limit_sa = SilentAura:CreateToggle({ Name="Limit to items" })
+	Angle_sa = SilentAura:CreateSlider({ Name='Max Angle', Min=60, Max=360, Default=145 })
+	ExtendAttackRange_sa = SilentAura:CreateSlider({ Name='Extend Attack Range', Min=0, Max=8, Default=1.4, Decimal=100 })
+	ExtendSwingRange_sa = SilentAura:CreateSlider({ Name='Extend Swing Range', Min=0, Max=12, Default=3.2, Decimal=100 })
+	UpdateRate_sa = SilentAura:CreateSlider({ Name='Update Rate', Suffix='hz', Min=15, Max=90, Default=45 })
+end)
+
+
+-- CleanKit
+run(function()
+	local CleanKit_mod
+
+	local CK_mod = {}
+
+	function CK_mod:blood_assassin(callback, module)
+		if not module then return end
+		if callback then
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
+			module:Clean(workspace.DescendantAdded:Connect(function(child)
+				if vape.ThreadFix then setthreadidentity(8) end
+				if child and child.Name=='BloodAssassinDecay' then pcall(function() child:Destroy() end) end
+			end))
+			for _,child in workspace:GetDescendants() do
+				if vape.ThreadFix then setthreadidentity(8) end
+				if child and child.Name=='BloodAssassinDecay' then pcall(function() child:Destroy() end) end
+			end
+		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
+	end
+
+	function CK_mod:drill(callback, module)
+		if not module then return end
+		if callback then
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
+			module:Clean(workspace.ChildAdded:Connect(function(child)
+				if vape.ThreadFix then setthreadidentity(8) end
+				if child and child.Name=='Drill' then for _,v in child:GetDescendants() do if v:IsA('BasePart') then bedwars.QueryUtil:setQueryIgnored(v,true) end end end
+				if child and (child.Name=='diamond' or child.Name=='gold' or child.Name=='emerald') then pcall(function() child:Destroy() end) end
+			end))
+			for _,child in workspace:GetChildren() do
+				if vape.ThreadFix then setthreadidentity(8) end
+				if child and child.Name=='Drill' then for _,v in child:GetDescendants() do if v:IsA('BasePart') then bedwars.QueryUtil:setQueryIgnored(v,true) end end end
+				if child and (child.Name=='diamond' or child.Name=='gold' or child.Name=='emerald') then pcall(function() child:Destroy() end) end
+			end
+		else
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false
+			for _,child in workspace:GetChildren() do
+				if child and child.Name=='Drill' then for _,v in child:GetDescendants() do if v:IsA('BasePart') then bedwars.QueryUtil:setQueryIgnored(v,false) end end end
+			end
+		end
+	end
+
+	function CK_mod:star_collector(callback, module)
+		if not module then return end
+		if callback then
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
+			local function processStars(child)
+				if vape.ThreadFix then setthreadidentity(8) end
+				if child and (child.Name=='CritStar' or child.Name=='VitalityStar') then
+					local ID = game.HttpService:GenerateGUID(true)
+					child:SetAttribute('id', ID); child.AnimationController:SetAttribute('id', ID)
+					for _,v in child:GetDescendants() do if v:IsA('BasePart') then bedwars.QueryUtil:setQueryIgnored(v,true); child.AnimationController.Parent=game.ReplicatedStorage end end
+				end
+			end
+			module:Clean(workspace.ChildAdded:Connect(processStars))
+			for _,child in workspace:GetChildren() do processStars(child) end
+		else
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false
+			for _,star in workspace:GetChildren() do
+				if vape.ThreadFix then setthreadidentity(8) end
+				if star and (star.Name=='CritStar' or star.Name=='VitalityStar') then
+					local id = star:GetAttribute("id")
+					if id then
+						for _,v in game.ReplicatedStorage:GetChildren() do
+							if v.Name=="AnimationController" and v:GetAttribute("id")==id then
+								v.Parent=star; v:SetAttribute("id",nil); star:SetAttribute("id",nil)
+								for _,part in star:GetDescendants() do if part:IsA("BasePart") then bedwars.QueryUtil:setQueryIgnored(part,false) end end
+								break
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	function CK_mod:cat(callback, module)
+		if not module then return end
+		pcall(function() lplr.PlayerGui:FindFirstChild('ActionBarScreenGui'):WaitForChild('ActionBar',10):WaitForChild("CatStaminaBar",25).Visible = not callback end)
+		if callback then
+			module:Clean(workspace.DescendantAdded:Connect(function(child)
+				if vape.ThreadFix then setthreadidentity(8) end
+				if child and (child.Name=='BlockRegionBox' or child.Name:find('Decay') or child.Name:find('decay')) then pcall(function() child:Destroy() end) end
+			end))
+			for _,child in workspace:GetDescendants() do
+				if vape.ThreadFix then setthreadidentity(8) end
+				if child and (child.Name=='BlockRegionBox' or child.Name:find('Decay') or child.Name:find('decay')) then pcall(function() child:Destroy() end) end
+			end
+		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
+	end
+
+	function CK_mod:sword_shield(callback, module)
+		if not module then return end
+		if callback then
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
+			for _,child in lplr.Character:GetDescendants() do if vape.ThreadFix then setthreadidentity(8) end; if child and child.Name:find('Shield') then pcall(function() child:Destroy() end) end end
+			module:Clean(lplr.Character.DescendantAdded:Connect(function(child) if vape.ThreadFix then setthreadidentity(8) end; if child and child.Name:find('Shield') then pcall(function() child:Destroy() end) end end))
+		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
+	end
+
+	function CK_mod:glacial_skater(callback, module)
+		if not module then return end
+		pcall(function() lplr.PlayerGui.ActionBarScreenGui.ActionBar.MomentumBarUi.Visible = not callback end)
+		if callback then
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
+			module:Clean(lplr.PlayerGui.StatusEffectHudScreen.StatusEffectHud.ChildAdded:Connect(function(child)
+				if child and (child.Name=='On Ice' or child.Name=='High Speed Skating') then pcall(function() child:Destroy() end) end
+			end))
+		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
+	end
+
+	function CK_mod:defender(callback, module)
+		if not module then return end
+		if callback then
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
+			local function processDefender(child)
+				if child and (child.Name=='DefenderSchematicBlock' or child.Name=='DefenderCustomBlockHighlight') then child.Transparency=0 end
+				if child and child.Name=='DefenderBlockPopup' then for _,v in child:GetChildren() do v.Visible=(v.Name=='Cost') end end
+			end
+			for _,child in workspace:GetDescendants() do processDefender(child) end
+			module:Clean(workspace.DescendantAdded:Connect(processDefender))
+		else
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false
+			for _,child in workspace:GetDescendants() do
+				if child and (child.Name=='DefenderSchematicBlock' or child.Name=='DefenderCustomBlockHighlight') then child.Transparency=0.95 end
+				if child and child.Name=='DefenderBlockPopup' then for _,v in child:GetChildren() do v.Visible=true end end
+			end
+		end
+	end
+
+	function CK_mod:berserker(callback, module)
+		if not module then return end
+		if callback then
+			store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = true
+			for _,child in lplr.Character:GetDescendants() do if child and child.Name=='BerserkerRageEffect' then child:Destroy() end end
+			module:Clean(lplr.Character.ChildAdded:Connect(function(child) if child and child.Name=='BerserkerRageEffect' then child:Destroy() end end))
+		else store.CleanKit[lplr:GetAttribute('PlayingAsKits') or 'none'] = false end
+	end
+
+	CleanKit_mod = vape.Categories.Render:CreateModule({
+		Name = 'Clean Kit',
+		Function = function(callback)
+			local suc, res = pcall(function()
+				return CK_mod[lplr:GetAttribute("PlayingAsKits") or 'none'](CK_mod, callback, CleanKit_mod)
+			end)
+			if not suc then print('CleanKit failed:', res) end
+		end
+	})
+end)
+
+
+-- Autowin
+run(function()
+	local Autowin
+	local tracker_aw = {bed=nil, nuking=false, died=false, kaing=false, currentTarget=nil}
+	local beds_aw = {}
+	local players_aw = {}
+	local currentbedpos_aw = Vector3.zero
+	local oldMomentumUpdate_aw
+
+	local function setup_aw()
+		if not bedwars.GlacialSkaterController then warn('no controller to hook onto'); return false end
+		if store.equippedKit ~= 'glacial_skater' then warn('not krystal kit'); return false end
+		if not oldMomentumUpdate_aw then oldMomentumUpdate_aw = bedwars.GlacialSkaterController.updateMomentum end
+		bedwars.GlacialSkaterController.updateMomentum = function(self, ...)
+			self.momentum=9e9; self.lastMomentumReport=9e9
+			pcall(function() bedwars.Client:Get('MomentumUpdate'):SendToServer({momentumValue=9e9}) end)
+		end
+		return true
+	end
+
+	local function isBedObjectAt(pos)
+		for _,obj in ipairs(workspace:GetDescendants()) do
+			if obj.Name=="bed" and obj:IsA("BasePart") and (obj.Position-pos).Magnitude<2 then return true end
+		end
+		return false
+	end
+
+	local function cleanBedsTable()
+		for i=#beds_aw,1,-1 do if not isBedObjectAt(beds_aw[i]) then table.remove(beds_aw,i) end end
+	end
+
+	local function AllbedPOS()
+		beds_aw = {}
+		local mapCFrames = workspace:FindFirstChild("MapCFrames")
+		if mapCFrames then
+			for _,obj in ipairs(mapCFrames:GetChildren()) do
+				if string.match(obj.Name,"_bed$") then table.insert(beds_aw, obj.Value.Position) end
+			end
+		end
+		cleanBedsTable()
+	end
+
+	local function UpdateCurrentBedPOS()
+		local mapCFrames = workspace:FindFirstChild("MapCFrames"); if not mapCFrames then return end
+		local team = lplr.Character and lplr.Character:GetAttribute("Team")
+		if team then local bedObj=mapCFrames:FindFirstChild(tostring(team).."_bed"); if bedObj then currentbedpos_aw=bedObj.Value.Position end end
+	end
+
+	local function closestBed(origin)
+		local closest, dist = nil, math.huge
+		for _,pos in ipairs(beds_aw) do
+			if (pos-currentbedpos_aw).Magnitude>5 then local d=(pos-origin).Magnitude; if d<dist then dist=d; closest=pos end end
+		end
+		return closest
+	end
+
+	local function getallPlayers_aw()
+		players_aw = {}
+		for _,ent in entitylib.List do if ent.Player and ent.Player~=lplr then table.insert(players_aw, ent.Player) end end
+	end
+
+	local function configureBreaker_aw()
+		if not vape.Modules.Breaker.Enabled then vape.Modules.Breaker:Toggle() end
+		task.wait()
+		task.spawn(function()
+			local opts = vape.Modules.Breaker.Options
+			if opts['Break Iron Ore'] and opts['Break Iron Ore'].Enabled then opts['Break Iron Ore']:Toggle() end
+			if opts['Break Crops'] and opts['Break Crops'].Enabled then opts['Break Crops']:Toggle() end
+			if opts['Break Hive'] and opts['Break Hive'].Enabled then opts['Break Hive']:Toggle() end
+			if opts['Require Mouse Down'] and opts['Require Mouse Down'].Enabled then opts['Require Mouse Down']:Toggle() end
+			if opts['Auto Tool'] and not opts['Auto Tool'].Enabled then opts['Auto Tool']:Toggle() end
+			if opts['Limit to items'] and opts['Limit to items'].Enabled then opts['Limit to items']:Toggle() end
+			if opts['Break Tesla'] and opts['Break Tesla'].Enabled then opts['Break Tesla']:Toggle() end
+			if opts['Break Pinata'] and opts['Break Pinata'].Enabled then opts['Break Pinata']:Toggle() end
+			if opts['Break Bed'] and not opts['Break Bed'].Enabled then opts['Break Bed']:Toggle() end
+			if opts['Break range'] then opts['Break range']:SetValue(30) end
+			if opts['Break speed'] then opts['Break speed']:SetValue(0.25) end
+			if opts['Update rate'] then opts['Update rate']:SetValue(120) end
+		end)
+	end
+
+	local function configureKillaura_aw()
+		if not vape.Modules.Killaura.Enabled then vape.Modules.Killaura:Toggle() end
+		if vape.Modules.GrandKillaura and vape.Modules.GrandKillaura.Enabled then vape.Modules.GrandKillaura:Toggle() end
+		if vape.Modules.SilentAura and vape.Modules.SilentAura.Enabled then vape.Modules.SilentAura:Toggle() end
+		task.wait()
+		task.spawn(function()
+			local opts = vape.Modules.Killaura.Options
+			local function ensureOff(name) if opts[name] and opts[name].Enabled then opts[name]:Toggle() end end
+			local function ensureOn(name) if opts[name] and not opts[name].Enabled then opts[name]:Toggle() end end
+			ensureOn('Targets'); ensureOff('Walls'); ensureOff('NPCs'); ensureOff('Invisible')
+			ensureOff('Range Visualiser'); ensureOff('Require mouse down'); ensureOff('GUI check')
+			ensureOn('Custom Swing Time'); ensureOff('Continue Swinging'); ensureOff('Custom Hit Reg')
+			ensureOff('Sync Hits'); ensureOff('Show target'); ensureOff('Target particles')
+			ensureOff('Face target'); ensureOff('Custom Animation'); ensureOff('Limit to items')
+			ensureOff('Swing only'); ensureOff('Air Hits'); ensureOff('Dynamic Reach')
+			ensureOff('Attack Check'); ensureOff('Fast Hits'); ensureOff('FastHits Blacklist'); ensureOff('No Swing')
+			if opts['Target Priority'] then opts['Target Priority']:SetValue('Distance') end
+			if opts['Swing range'] then opts['Swing range']:SetValue(40) end
+			if opts['Attack range'] then opts['Attack range']:SetValue(22) end
+			if opts['Max angle'] then opts['Max angle']:SetValue(360) end
+			if opts['Update rate'] then opts['Update rate']:SetValue(120) end
+			if opts['Max targets'] then opts['Max targets']:SetValue(5) end
+			if opts['Swing Time'] then opts['Swing Time']:SetValue(0) end
+		end)
+	end
+
+	Autowin = vape.Categories.Minigames:CreateModule({
+		Name = 'Autowin',
+		Function = function(callback)
+			repeat task.wait(0.08) until store.matchState~=0
+			if not callback then
+				if oldMomentumUpdate_aw and bedwars.GlacialSkaterController then bedwars.GlacialSkaterController.updateMomentum=oldMomentumUpdate_aw end
+				tracker_aw.nuking=false; tracker_aw.kaing=false; tracker_aw.currentTarget=nil; beds_aw={}
+				return
+			end
+			if not setup_aw() then
+				vape:CreateNotification("Vape", "Autowin requires Krystal kit!", 8, 'warning')
+				Autowin:Toggle(false); return
+			end
+			lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead)
+			task.wait(playersService.RespawnTime or 3)
+			Autowin:Clean(runService.RenderStepped:Connect(function()
+				if not bedwars then return end
+				pcall(function() bedwars.GlacialSkaterController:updateMomentum({momentum=9e9,lastMomentumReport=9e9},"newValue") end)
+			end))
+			UpdateCurrentBedPOS(); AllbedPOS()
+			if #beds_aw<=1 then vape:CreateNotification("Autowin","Not enough beds to nuke!",6,'warning'); Autowin:Toggle(false); return end
+			configureBreaker_aw(); configureKillaura_aw()
+			tracker_aw.nuking = true
+			Autowin:Clean(lplr.CharacterAdded:Connect(function(char)
+				task.wait(0.5)
+				local root = char:WaitForChild('HumanoidRootPart',5)
+				if root then
+					if tracker_aw.bed then root.CFrame=CFrame.new(tracker_aw.bed.X,tracker_aw.bed.Y+6,tracker_aw.bed.Z)
+					elseif tracker_aw.kaing and tracker_aw.currentTarget then
+						local targetChar=tracker_aw.currentTarget.Character
+						local targetRoot=targetChar and targetChar:FindFirstChild('HumanoidRootPart')
+						if targetRoot then root.CFrame=CFrame.new(targetRoot.Position.X,targetRoot.Position.Y+6,targetRoot.Position.Z)
+						elseif tracker_aw.lastTargetPos then root.CFrame=CFrame.new(tracker_aw.lastTargetPos.X,tracker_aw.lastTargetPos.Y+6,tracker_aw.lastTargetPos.Z) end
+					end
+				end
+			end))
+			task.spawn(function()
+				while Autowin.Enabled and #beds_aw>1 and tracker_aw.nuking do
+					local root=lplr.Character and lplr.Character:FindFirstChild('HumanoidRootPart')
+					if not root then task.wait(0.5); continue end
+					local nextBed=closestBed(root.Position)
+					if not nextBed then break end
+					if not isBedObjectAt(nextBed) then
+						for i,v in ipairs(beds_aw) do if (v-nextBed).Magnitude<0.1 then table.remove(beds_aw,i); break end end
+						tracker_aw.bed=nil; continue
+					end
+					tracker_aw.bed=nextBed
+					root.CFrame=CFrame.new(nextBed.X,nextBed.Y+6,nextBed.Z)
+					task.wait(0.1)
+					local conn
+					conn=workspace.DescendantRemoving:Connect(function(obj)
+						if obj and obj.Name=="bed" and (obj.Position-nextBed).Magnitude<3 then
+							for i,v in ipairs(beds_aw) do if (v-nextBed).Magnitude<3 then table.remove(beds_aw,i); break end end
+							tracker_aw.bed=nil; conn:Disconnect()
+						end
+					end)
+					task.wait(0.3)
+				end
+				tracker_aw.nuking=false; tracker_aw.bed=nil
+				vape:CreateNotification("Autowin",'Nuked all beds. Moving onto Players..',8)
+				if lplr.Character and lplr.Character:FindFirstChild('Humanoid') then lplr.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Dead) end
+				task.wait(playersService.RespawnTime or 3)
+				getallPlayers_aw()
+				local function getAlivePlayers_aw()
+					local alive={}
+					for _,player in ipairs(players_aw) do
+						if player~=lplr then local char=player.Character; if char then local hum=char:FindFirstChild('Humanoid'); if hum and hum.Health>0 then table.insert(alive,player) end end end
+					end
+					return alive
+				end
+				local alivePlayers=getAlivePlayers_aw()
+				if #alivePlayers==0 then vape:CreateNotification("Autowin","Done. No players needed to kill",5); Autowin:Toggle(false); return end
+				tracker_aw.kaing=true
+				for i=1,#alivePlayers do
+					if not Autowin.Enabled or not tracker_aw.kaing then break end
+					local targetPlayer=alivePlayers[i]
+					local char=targetPlayer.Character; local hum=char and char:FindFirstChild('Humanoid')
+					if not hum or hum.Health<=0 then for idx,p in ipairs(players_aw) do if p==targetPlayer then table.remove(players_aw,idx); break end end; continue end
+					tracker_aw.currentTarget=targetPlayer; tracker_aw.lastTargetPos=nil
+					local function teleportToTarget_aw()
+						local c=targetPlayer.Character; if c then local tr=c:FindFirstChild('HumanoidRootPart'); if tr then local pos=tr.Position; tracker_aw.lastTargetPos=pos; local mr=lplr.Character and lplr.Character:FindFirstChild('HumanoidRootPart'); if mr then mr.CFrame=CFrame.new(pos.X,pos.Y+6,pos.Z) end end end
+					end
+					teleportToTarget_aw()
+					while Autowin.Enabled and tracker_aw.kaing and tracker_aw.currentTarget==targetPlayer do
+						local c=targetPlayer.Character; local h=c and c:FindFirstChild('Humanoid')
+						if not h or h.Health<=0 then break end
+						local r=c:FindFirstChild('HumanoidRootPart'); if r then tracker_aw.lastTargetPos=r.Position end
+						task.wait(0.3)
+					end
+					for idx,p in ipairs(players_aw) do if p==targetPlayer then table.remove(players_aw,idx); break end end
+					if not Autowin.Enabled or not tracker_aw.kaing then break end
+					vape:CreateNotification("Autowin",targetPlayer.Name.." killed.",3)
+				end
+				tracker_aw.kaing=false; tracker_aw.currentTarget=nil
+				if Autowin.Enabled then vape:CreateNotification("Autowin","Done. Killed all players and nuked all beds!",5); Autowin:Toggle(false) end
+			end)
+		end
+	})
+end)
+
+
+-- Desync
+run(function()
+	local Desync
+
+	local hooktypes_ds = { rakhook1=false, rakhook2=false, fflag=false }
+	local rakNet_ds = typeof(raknet)=="table"
+
+	local function rakhook_ds(pckt)
+		if not pckt then return end
+		if pckt.PacketId==0x1B or (pckt.AsArray and pckt.AsArray[1]==0x1B) then
+			pcall(function() local buf=pckt.AsBuffer or buffer.create(100); buffer.writeu32(buf,1,0xFFFFFFFF); pckt:SetData(buf) end)
+		end
+	end
+
+	local function rakHookk_ds(pckt)
+		if not pckt then return end
+		if pckt.PacketId==0x1B then
+			pcall(function() local buf=pckt.AsBuffer; if buf then buffer.writeu32(buf,1,0xFFFFFFFF); pckt:SetData(buf) end end)
+		end
+	end
+
+	Desync = vape.Categories.Blatant:CreateModule({
+		Name = "Desync",
+		Tooltip = "Uses various methods to desync your position",
+		Function = function(callback)
+			if callback then
+				if rakNet_ds then
+					vape:CreateNotification("Vape","RakNet found! Attempting server-sided desync...",8)
+					local suc1 = pcall(function() return raknet.add_send_hook(rakhook_ds) end)
+					if suc1 then hooktypes_ds.rakhook1=true; vape:CreateNotification("Vape","Desync: raknet hook applied",6); return end
+					task.wait(0.5)
+					local suc2 = pcall(function() return raknet.add_send_hook(rakHookk_ds) end)
+					if suc2 then hooktypes_ds.rakhook2=true; vape:CreateNotification("Vape","Desync: second raknet hook applied",6); return end
+					vape:CreateNotification("Vape","Both raknet hooks failed. Falling back to fflag...",8,"warning")
+				else
+					vape:CreateNotification("Vape","raknet not supported. Using fflag method.",8)
+				end
+				local fflagSuccess = pcall(function() return setfflag("NextGenReplicatorEnabledWrite4","true") end)
+				if fflagSuccess then
+					hooktypes_ds.fflag=true; vape:CreateNotification("Vape","Desync: fflag enabled",6)
+				else
+					vape:CreateNotification("Vape","All desync methods failed. Disabling...",8,"alert")
+					task.delay(1.5, function() Desync:Toggle(false) end)
+				end
+			else
+				if rakNet_ds then
+					if hooktypes_ds.rakhook1 then pcall(function() raknet.remove_send_hook(rakhook_ds) end)
+					elseif hooktypes_ds.rakhook2 then pcall(function() raknet.remove_send_hook(rakHookk_ds) end) end
+				end
+				if hooktypes_ds.fflag then pcall(function() setfflag("NextGenReplicatorEnabledWrite4","false") end) end
+				hooktypes_ds.rakhook1=false; hooktypes_ds.rakhook2=false; hooktypes_ds.fflag=false
+			end
+		end
+	})
+end)
